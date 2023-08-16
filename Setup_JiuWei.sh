@@ -172,7 +172,7 @@ check_go() {
         elif [ "$sys_name" = "centos" ]; then
             dnf install -y golang
         elif [ "$sys_name" = "termux" ]; then
-            apt install -y go
+            apt install -y golang
         elif [ "$sys_name" = "darwin" ]; then
             brew install -y go
         fi
