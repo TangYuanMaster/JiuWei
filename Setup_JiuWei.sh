@@ -222,7 +222,7 @@ if ! wget "https://gitee.com/CNTangyuan/JiuWei-repository/raw/master/fox"; then
     exit 1
 fi
 chmod +x fox
-echo 'export $PATH:/opt/JiuWei/.bin' > /etc/profile.d/JiuWei.sh
+echo "export \$PATH:$MAIN_DIR/.bin" > /etc/profile.d/JiuWei.sh
 
 wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
 chmod +x Remove_JiuWei.sh
