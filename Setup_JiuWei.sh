@@ -124,7 +124,7 @@ check_git() {
     fi
 }
 check_python3_pip3() {
-    if [ ! command -v python3 ] || [ ! command -v pip3 ]; then
+    if ! command -v python3 || ! command -v pip3; then
         echo -e "${COLOR_YELLOW}[*] Python3 or pip3 is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add python3 py3-pip
