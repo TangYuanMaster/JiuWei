@@ -69,7 +69,7 @@ update_run() {
 }
 
 check_rust_cargo() {
-    if ! command -v rustc &> /dev/null || ! command -v cargo &> /dev/null; then
+    if ! command -v rustc || ! command -v cargo; then
         echo -e "${COLOR_YELLOW}[*] Rust or Cargo is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add rust cargo
@@ -90,7 +90,7 @@ check_rust_cargo() {
     fi
 }
 check_node_npm() {
-    if ! command -v node &> /dev/null || ! command -v npm &> /dev/null; then
+    if ! command -v node || ! command -v npm; then
         echo -e "${COLOR_YELLOW}[*] Node.js or npm is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add nodejs npm
@@ -109,7 +109,7 @@ check_node_npm() {
     fi
 }
 check_java() {
-    if ! command -v java &> /dev/null || ! command -v javac &> /dev/null; then
+    if ! command -v java || ! command -v javac; then
         echo -e "${COLOR_YELLOW}[*] Java is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add openjdk8
@@ -127,7 +127,7 @@ check_java() {
     fi
 }
 check_python2_pip2() {
-    if ! command -v python2 &> /dev/null || ! command -v pip2 &> /dev/null; then
+    if ! command -v python2 || ! command -v pip2; then
         echo -e "${COLOR_YELLOW}[*] Python2 or pip2 is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             #需要旧的AlpineLinux源

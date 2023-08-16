@@ -70,7 +70,7 @@ update_run() {
 }
 
 check_curl() {
-    if ! command -v curl &> /dev/null; then
+    if ! command -v curl; then
         echo -e "${COLOR_YELLOW}[*] Curl is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add curl
@@ -88,7 +88,7 @@ check_curl() {
     fi
 }
 check_wget() {
-    if ! command -v wget &> /dev/null; then
+    if ! command -v wget; then
         echo -e "${COLOR_YELLOW}[*] Wget is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add wget
@@ -106,7 +106,7 @@ check_wget() {
     fi
 }
 check_git() {
-    if ! command -v git &> /dev/null; then
+    if ! command -v git; then
         echo -e "${COLOR_YELLOW}[*] Git is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add git
@@ -124,7 +124,7 @@ check_git() {
     fi
 }
 check_python3_pip3() {
-    if [ ! command -v python3 &> /dev/null ] || [! command -v pip3 &> /dev/null]; then
+    if [ ! command -v python3 ] || [! command -v pip3]; then
         echo -e "${COLOR_YELLOW}[*] Python3 or pip3 is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add python3 py3-pip
@@ -142,7 +142,7 @@ check_python3_pip3() {
     fi
 }
 check_go() {
-    if ! command -v go &> /dev/null; then
+    if ! command -v go; then
         echo -e "${COLOR_YELLOW}[*] Go is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add go
@@ -160,7 +160,7 @@ check_go() {
     fi
 }
 check_ruby_gem() {
-    if ! command -v ruby &> /dev/null || ! command -v gem &> /dev/null; then
+    if ! command -v ruby || ! command -v gem; then
         echo -e "${COLOR_YELLOW}[*] Ruby or Gem is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add ruby ruby-irb ruby-dev build-base
@@ -205,7 +205,7 @@ fi
 chmod +x fox
 echo 'export $PATH:/opt/JiuWei/.bin' > /etc/profile.d/JiuWei.sh
 
-wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei
-chmod +x Remove_JiuWei
+wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
+chmod +x Remove_JiuWei.sh
 
 echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.(つ≧▽≦)つ${COLOR_DEFAULT}"
