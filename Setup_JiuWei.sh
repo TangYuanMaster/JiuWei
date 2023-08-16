@@ -209,7 +209,7 @@ update_run
 check_code
 
 mkdir -p "$MAIN_DIR" "$BIN" "$CACHE" "$FOXINDEX"
-echo "nano" > "$ST"
+echo "minimal" > "$ST"
 echo "#Jiuwei repository" > "$CONFIG"
 echo "SOURCE=\"https://gitee.com/CNTangyuan/JiuWei-repository/raw/master\"" >> "$CONFIG"
 touch "$HBI" "$PACKAGES"
@@ -217,7 +217,7 @@ touch "$HBI" "$PACKAGES"
 cd "$BIN"
 
 # 使用wget命令从指定URL下载文件
-if ! wget "https://gitee.com/CNTangyuan/JiuWei-repository/raw/master/fox"; then
+if ! wget -N --no-clobber "https://gitee.com/CNTangyuan/JiuWei-repository/raw/master/fox"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
@@ -232,7 +232,7 @@ else
 fi
 export PATH="$PATH:$MAIN_DIR/.bin"
 
-wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
+wget -N --no-clobber https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
 chmod +x Remove_JiuWei.sh
 
 echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.\(つ≧▽≦\)つ${COLOR_DEFAULT}"
