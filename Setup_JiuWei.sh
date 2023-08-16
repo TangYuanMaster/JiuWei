@@ -45,28 +45,42 @@ FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
 ST="$MAIN_DIR/$ST_FILE"
 
+if grep -qiF 'ID=alpine' /etc/os-release; then
+    sys_name="alpine"
+elif grep -qiF 'ID=debian' /etc/os-release; then
+    sys_name="debian"
+elif grep -qiF 'ID=ubuntu' /etc/os-release; then
+    sys_name="ubuntu"
+elif grep -qiF 'ID=kali' /etc/os-release; then
+    sys_name="kali"
+elif grep -qiF 'ID=arch' /etc/os-release; then
+    sys_name="arch"
+elif grep -qiF 'ID=centos' /etc/os-release; then
+    sys_name="centos"
+elif [ -n "$TERMUX_VERSION" ]; then
+    sys_name="termux"
+elif command -v "sw_vers"; then
+    sys_name="darwin"
+else
+    echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
+    exit 1
+fi
 update_run() {
-    if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
-        echo -e "${COLOR_YELLOW}[*] Skip update～=_=${COLOR_DEFAULT}"
-    else
-        echo -e "${COLOR_YELLOW}[*] Update...${COLOR_DEFAULT}"
-        if [ "$sys_name" = "alpine" ]; then
-            local run="apk update"
-        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
-            local run="apt update"
-        elif [ "$sys_name" = "arch" ]; then
-            local run="pacman -Sy"
-        elif [ "$sys_name" = "centos" ]; then
-            local run="dnf -y update"
-        elif [ "$sys_name" = "termux" ]; then
-            local run="apt update"
-        elif [ "$sys_name" = "darwin" ]; then
-            local run="brew update"
-        fi
+    echo -e "${COLOR_YELLOW}[*] Update...${COLOR_DEFAULT}"
+    if [ "$sys_name" = "alpine" ]; then
+        local run="apk update"
+    elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+        local run="apt update"
+    elif [ "$sys_name" = "arch" ]; then
+        local run="pacman -Sy"
+    elif [ "$sys_name" = "centos" ]; then
+        local run="dnf -y update"
+    elif [ "$sys_name" = "termux" ]; then
+        local run="apt update"
+    elif [ "$sys_name" = "darwin" ]; then
+        local run="brew update"
     fi
-    if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
-        echo "$run"
-    fi
+    eval "$run"
 }
 
 check_curl() {
