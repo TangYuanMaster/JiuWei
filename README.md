@@ -1,11 +1,8 @@
-# JiuWei
+# JiuWei | [JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
 
 **JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具.｜A convenient, multi-purpose integrated tool for network security <u>packet management</u>.**
 
 ![logo](img/logo.jpg)
-
-
-[JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
 
 
 ## 使用声明
