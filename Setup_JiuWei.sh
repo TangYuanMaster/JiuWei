@@ -116,7 +116,7 @@ check_git() {
             pacman -Sy git
         elif [ "$sys_name" = "centos" ]; then
             dnf install -y git
-        elif [ "$sys_name"" = "termux" ]; then
+        elif [ "$sys_name" = "termux" ]; then
             apt install -y git
         elif [ "$sys_name" = "darwin" ]; then
             brew install -y git
