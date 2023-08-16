@@ -222,7 +222,15 @@ if ! wget "https://gitee.com/CNTangyuan/JiuWei-repository/raw/master/fox"; then
     exit 1
 fi
 chmod +x fox
-echo "export \$PATH:$MAIN_DIR/.bin" > /etc/profile.d/JiuWei.sh
+
+if [ ! -n "$TERMUX_VERSION" ]; then
+    echo "export \"PATH=\$PATH:$MAIN_DIR/.bin\"" > /data/data/com.termux/files/usr/etc/profile.d/JiuWei.sh
+    chmod +x /data/data/com.termux/files/usr/etc/profile.d/JiuWei.sh
+else
+    echo "export \"PATH=\$PATH:$MAIN_DIR/.bin\"" > /etc/profile.d/JiuWei.sh
+    chmod +x /etc/profile.d/JiuWei.sh
+fi
+export PATH="$PATH:$MAIN_DIR/.bin"
 
 wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
 chmod +x Remove_JiuWei.sh
