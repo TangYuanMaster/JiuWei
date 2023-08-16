@@ -44,6 +44,31 @@ FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
 ST="$MAIN_DIR/$ST_FILE"
 
+if [ -f "/etc/os-release" ]; then
+    if grep -qiF 'ID=alpine' /etc/os-release; then
+        sys_name="alpine"
+    elif grep -qiF 'ID=debian' /etc/os-release; then
+        sys_name="debian"
+    elif grep -qiF 'ID=ubuntu' /etc/os-release; then
+        sys_name="ubuntu"
+    elif grep -qiF 'ID=kali' /etc/os-release; then
+        sys_name="kali"
+    elif grep -qiF 'ID=arch' /etc/os-release; then
+        sys_name="arch"
+    elif grep -qiF 'ID=centos' /etc/os-release; then
+        sys_name="centos"
+    else
+        if [ -n "$TERMUX_VERSION" ]; then
+            sys_name="termux"
+        elif command -v "sw_vers"; then
+            sys_name="darwin"
+        else
+            echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
+            exit 1
+        fi
+    fi
+fi
+
 update_run() {
     if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
         echo -e "${COLOR_YELLOW}[*] Skip update～=_=${COLOR_DEFAULT}"
