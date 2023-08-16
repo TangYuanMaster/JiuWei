@@ -64,5 +64,5 @@ read -r answer
 if [[ $answer =~ ^[Yy]$ ]]; then
     main
 else
-    echo -e "${COLOR_YELLOW}[WARN] Sure enough, you still love me~ Love you too!(♡(˃͈ દ ˂͈ ༶ )${COLOR_DEFAULT}"
+    echo -e "${COLOR_YELLOW}[WARN] Sure enough, you still love me~ Love you too!\(♡\(˃͈ દ ˂͈ ༶ \)${COLOR_DEFAULT}"
 fi

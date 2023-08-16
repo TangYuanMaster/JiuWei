@@ -208,4 +208,4 @@ echo 'export $PATH:/opt/JiuWei/.bin' > /etc/profile.d/JiuWei.sh
 wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei.sh
 chmod +x Remove_JiuWei.sh
 
-echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.(つ≧▽≦)つ${COLOR_DEFAULT}"
+echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.\(つ≧▽≦\)つ${COLOR_DEFAULT}"

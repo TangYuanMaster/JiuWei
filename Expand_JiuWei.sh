@@ -157,4 +157,4 @@ check_code
 
 echo "full" > "$ST"
 
-echo -e "${COLOR_GREEN}[INFO] Thank you for your support of Fox ~ Have a good luck! o(￣▽￣)ｄ${COLOR_DEFAULT}"
+echo -e "${COLOR_GREEN}[INFO] Thank you for your support of Fox ~ Have a good luck! o\(￣▽￣\)ｄ${COLOR_DEFAULT}"
