@@ -37,6 +37,7 @@
 - Debian
 - AlpineLinux
 - Darwin
+- CentOS
 - ArchLinux
 - Termux〔支持NoRoot〕
 

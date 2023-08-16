@@ -48,7 +48,7 @@ ST="$MAIN_DIR/$ST_FILE"
 update_run() {
     if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
         echo -e "${COLOR_YELLOW}[*] Skip update～=_=${COLOR_DEFAULT}"
-    else:
+    else
         echo -e "${COLOR_YELLOW}[*] Update...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             local run="apk update"
@@ -78,7 +78,7 @@ check_curl() {
             apt install -y curl
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy curl
-        elif [ "$sys_name" = "certos" ]; then
+        elif [ "$sys_name" = "centos" ]; then
             dnf install -y curl
         elif [ "$sys_name" = "termux" ]; then
             apt install -y curl
@@ -114,9 +114,9 @@ check_git() {
             apt install -y git
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy git
-        elif [ "$sys_name" = "certos" ]; then
+        elif [ "$sys_name" = "centos" ]; then
             dnf install -y git
-        elif [ "$sys_name" = "termux" ]; then
+        elif [ "$sys_name"" = "termux" ]; then
             apt install -y git
         elif [ "$sys_name" = "darwin" ]; then
             brew install -y git
@@ -124,7 +124,7 @@ check_git() {
     fi
 }
 check_python3_pip3() {
-    if [ ! command -v python3 ] || [! command -v pip3]; then
+    if [ ! command -v python3 ] || [ ! command -v pip3 ]; then
         echo -e "${COLOR_YELLOW}[*] Python3 or pip3 is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
             apk add python3 py3-pip
@@ -132,7 +132,7 @@ check_python3_pip3() {
             apt install -y python3 python3-pip
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy python3 python-pip
-        elif [ "$sys_name" = "certos" ]; then
+        elif [ "$sys_name" = "centos" ]; then
             dnf install -y python3
         elif [ "$sys_name" = "termux" ]; then
             apt install -y python3 python3-pip
@@ -150,7 +150,7 @@ check_go() {
             apt install -y golang
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy go
-        elif [ "$sys_name" = "certos" ]; then
+        elif [ "$sys_name" = "centos" ]; then
             dnf install -y golang
         elif [ "$sys_name" = "termux" ]; then
             apt install -y go
