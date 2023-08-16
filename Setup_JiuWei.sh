@@ -58,15 +58,15 @@ if [ -f "/etc/os-release" ]; then
         sys_name="arch"
     elif grep -qiF 'ID=centos' /etc/os-release; then
         sys_name="centos"
+    fi
+else
+    if [ -n "$TERMUX_VERSION" ]; then
+        sys_name="termux"
+    elif command -v "sw_vers"; then
+        sys_name="darwin"
     else
-        if [ -n "$TERMUX_VERSION" ]; then
-            sys_name="termux"
-        elif command -v "sw_vers"; then
-            sys_name="darwin"
-        else
-            echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
-            exit 1
-        fi
+        echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
+        exit 1
     fi
 fi
 
@@ -154,7 +154,7 @@ check_python3_pip3() {
         elif [ "$sys_name" = "centos" ]; then
             dnf install -y python3
         elif [ "$sys_name" = "termux" ]; then
-            apt install -y python
+            apt install -y python python-pip
         elif [ "$sys_name" = "darwin" ]; then
             brew install -y python
         fi
