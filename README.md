@@ -1,8 +1,11 @@
 # JiuWei
 
-**JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具.｜A convenient, multi-purpose integrated tool for network security <u>packet management</u>**
+**JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具.｜A convenient, multi-purpose integrated tool for network security <u>packet management</u>.**
 
 ![logo](img/logo.jpg)
+
+
+[JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
 
 
 ## 使用声明
@@ -45,7 +48,7 @@
 
 呀~心动不如行动
 
-初始化运行JiuWei-nano环境状态
+初始化运行JiuWei-nano环境状态(・∀・)
 
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei.sh"
@@ -53,7 +56,7 @@ chmod +x Setup_JiuWei.sh
 ./Setup_JiuWei.sh
 ```
 
-拓展增量至JiuWei-full环境状态
+拓展增量至JiuWei-full环境状态((つ≧▽≦)つ
 
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei.sh"
@@ -61,11 +64,18 @@ chmod +x Expand_JiuWei.sh
 ./Expand_JiuWei.sh
 ```
 
+卸载JiuWei(ʘᗩʘ’)
+
+```
+./Remove_JiuWei.sh
+```
+
 
 ## 未来
 
 - [ ] DOCKER-MODE模式支持
 - [ ] 重点工具标注「*快速选择优良工具使用*」
+- [ ] Win支持？这似乎有点困难O_o
 
 
 ## 参考（仅常考运行原理）
@@ -84,6 +94,7 @@ chmod +x Expand_JiuWei.sh
 3. [QQ交流群-【𝑻𝒀𝑿𝑪】](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=OVsNn-8iWP5HTTARzTNzfOcgCngXp3gH&authKey=03ZWzlYVvCH6Cpq2Pa7nIEqOFiXw2svp96C896bcZc4Rpg%2FTNk2c2F8asJ4U7tiK&noverify=0&group_code=751386568)
 
 【QQ群号：751386568】
+
 
 ## 贡献名单「感谢各位大师傅的支持噢」
 
