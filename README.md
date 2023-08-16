@@ -86,7 +86,7 @@ chmod +x Expand_JiuWei.sh
 你可以向我告知新的工具及其简介，为我的项目编写工具fox文件，为我完善工具的简介或提供建议等等～
 希望各位大师傅踊跃贡献噢((･ω･)つ⊂(･ω･)
 
-1. [提交Github-iSSUES议题](https://github.com/HKTangyuan/JiuWei/issues)
+1. [提交Gitee-iSSUES议题](https://gitee.com/HKTangyuan/JiuWei/issues)
 2. [CSDN-TY汤圆](https://blog.csdn.net/qq_57851190)
 3. [QQ交流群-【𝑻𝒀𝑿𝑪】](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=OVsNn-8iWP5HTTARzTNzfOcgCngXp3gH&authKey=03ZWzlYVvCH6Cpq2Pa7nIEqOFiXw2svp96C896bcZc4Rpg%2FTNk2c2F8asJ4U7tiK&noverify=0&group_code=751386568)
 
