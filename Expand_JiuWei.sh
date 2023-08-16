@@ -23,6 +23,26 @@ if [ ! -n "$TERMUX_VERSION" ]; then
     check_root
 fi
 
+if [ ! -n "$HOME" ]; then
+    echo -e "${COLOR_RED}[-]\$HOME variables do not exist, please set the variable \$HOME and try again.${COLOR_DEFAULT}"
+    exit 1
+fi
+
+MAIN_DIR="$HOME/JiuWei"
+HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+PACKAGES_FILE=".packages" #记录所有的包信息,方便search（文本文件）
+CONFIG_FILE="config.list" #配置文件（文本文件）
+FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
+CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
+BIN_FILE=".bin" #快捷命令存放（文件夹）
+ST_FILE=".status" #JiuWei状态检测（文本文件）
+
+HBI="$MAIN_DIR/$HBI_FILE"
+PACKAGES="$MAIN_DIR/$PACKAGES_FILE"
+CACHE="$MAIN_DIR/$CACHE_FILE"
+FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
+BIN="$MAIN_DIR/$BIN_FILE"
+ST="$MAIN_DIR/$ST_FILE"
 
 update_run() {
     if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then

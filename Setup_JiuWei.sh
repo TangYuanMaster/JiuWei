@@ -23,7 +23,12 @@ if [ ! -n "$TERMUX_VERSION" ]; then
     check_root
 fi
 
-MAIN_DIR="/opt/JiuWei"
+if [ ! -n "$HOME" ]; then
+    echo -e "${COLOR_RED}[-]\$HOME variables do not exist, please set the variable \$HOME and try again.${COLOR_DEFAULT}"
+    exit 1
+fi
+
+MAIN_DIR="$HOME/JiuWei"
 HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
 PACKAGES_FILE=".packages" #记录所有的包信息,方便search（文本文件）
 CONFIG_FILE="config.list" #放置源URL（文本文件）
