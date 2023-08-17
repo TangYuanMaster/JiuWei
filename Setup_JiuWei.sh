@@ -58,6 +58,8 @@ if [ -f "/etc/os-release" ]; then
         sys_name="arch"
     elif grep -qiF 'ID=centos' /etc/os-release; then
         sys_name="centos"
+    elif grep -qiF 'ID=*rhel*' /etc/os-release; then
+        sys_name="redhat"
     fi
 else
     if [ -n "$TERMUX_VERSION" ]; then
@@ -78,8 +80,8 @@ update_run() {
         local run="apt update"
     elif [ "$sys_name" = "arch" ]; then
         local run="pacman -Sy"
-    elif [ "$sys_name" = "centos" ]; then
-        local run="dnf -y update"
+    elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+        local run="yum -y update"
     elif [ "$sys_name" = "termux" ]; then
         local run="apt update"
     elif [ "$sys_name" = "darwin" ]; then
@@ -97,8 +99,8 @@ check_curl() {
             apt install -y curl
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy curl
-        elif [ "$sys_name" = "centos" ]; then
-            dnf install -y curl
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y curl
         elif [ "$sys_name" = "termux" ]; then
             apt install -y curl
         elif [ "$sys_name" = "darwin" ]; then
@@ -115,8 +117,8 @@ check_wget() {
             apt install -y wget
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy wget
-        elif [ "$sys_name" = "centos" ]; then
-            dnf install -y wget
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y wget
         elif [ "$sys_name" = "termux" ]; then
             apt install -y wget
         elif [ "$sys_name" = "darwin" ]; then
@@ -133,8 +135,8 @@ check_git() {
             apt install -y git
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy git
-        elif [ "$sys_name" = "centos" ]; then
-            dnf install -y git
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y git
         elif [ "$sys_name" = "termux" ]; then
             apt install -y git
         elif [ "$sys_name" = "darwin" ]; then
@@ -151,8 +153,8 @@ check_python3_pip3() {
             apt install -y python3 python3-pip
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy python3 python-pip
-        elif [ "$sys_name" = "centos" ]; then
-            dnf install -y python3
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y python3
         elif [ "$sys_name" = "termux" ]; then
             apt install -y python python-pip
         elif [ "$sys_name" = "darwin" ]; then
@@ -169,8 +171,8 @@ check_go() {
             apt install -y golang
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy go
-        elif [ "$sys_name" = "centos" ]; then
-            dnf install -y golang
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y golang
         elif [ "$sys_name" = "termux" ]; then
             apt install -y golang
         elif [ "$sys_name" = "darwin" ]; then
@@ -187,7 +189,7 @@ check_ruby_gem() {
             apt install -y ruby-full
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy ruby
-        elif [ "$sys_name" = "centos" ]; then
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
             yum install -y ruby ruby-devel
         elif [ "$sys_name" = "termux" ]; then
             pkg install -y ruby

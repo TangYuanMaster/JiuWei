@@ -57,6 +57,8 @@ if [ -f "/etc/os-release" ]; then
         sys_name="arch"
     elif grep -qiF 'ID=centos' /etc/os-release; then
         sys_name="centos"
+    elif grep -qiF 'ID=*rhel*' /etc/os-release; then
+        sys_name="redhat"
     fi
 else
     if [ -n "$TERMUX_VERSION" ]; then
@@ -80,8 +82,8 @@ update_run() {
             local run="apt update"
         elif [ "$sys_name" = "arch" ]; then
             local run="pacman -Sy"
-        elif [ "$sys_name" = "centos" ]; then
-            local run="dnf -y update"
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            local run="yum -y update"
         elif [ "$sys_name" = "termux" ]; then
             local run="apt update"
         elif [ "$sys_name" = "darwin" ]; then
@@ -103,7 +105,7 @@ check_rust_cargo() {
             source $HOME/.cargo/env
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy rust
-        elif [ "$sys_name" = "centos" ]; then
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
             curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
             source $HOME/.cargo/env
         elif [ "$sys_name" = "termux" ]; then
@@ -123,7 +125,7 @@ check_node_npm() {
             apt install -y nodejs npm
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy nodejs npm
-        elif [ "$sys_name" = "centos" ]; then
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum install -y nodejs
         elif [ "$sys_name" = "termux" ]; then
@@ -142,7 +144,7 @@ check_java() {
             apt install -y openjdk-11-jdk
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy jdk-openjdk
-        elif [ "$sys_name" = "centos" ]; then
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
             yum install -y java-11-openjdk-devel
         elif [ "$sys_name" = "termux" ]; then
             pkg install -y openjdk-17
@@ -161,7 +163,7 @@ check_python2_pip2() {
             apt install -y python2 python-pip
         elif [ "$sys_name" = "arch" ]; then
             pacman -Sy python2 python2-pip
-        elif [ "$sys_name" = "centos" ]; then
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
             yum install -y python2
         elif [ "$sys_name" = "termux" ]; then
             apt install -y python2 python2-pip
