@@ -52,7 +52,7 @@ else
     if [[ $answer =~ ^[Nn]$ ]]; then
         exit 1
     else
-        wget https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei
+        wget -O "Setup_JiuWei" https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei
         chmod +x Setup_JiuWei
         ./Setup_JiuWei
     fi

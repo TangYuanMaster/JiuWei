@@ -38,6 +38,7 @@
 - AlpineLinux
 - Darwin
 - CentOS
+- RedHat
 - ArchLinux
 - Termux〔支持NoRoot〕
 
@@ -49,29 +50,30 @@
 初始化运行JiuWei-nano环境状态(・∀・)
 
 ```
-wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei.sh"
-chmod +x Setup_JiuWei.sh
+wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei"
+chmod +x Setup_JiuWei
 ./Setup_JiuWei.sh
 ```
 
 拓展增量至JiuWei-full环境状态((つ≧▽≦)つ
 
 ```
-wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei.sh"
-chmod +x Expand_JiuWei.sh
+wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei"
+chmod +x Expand_JiuWei
 ./Expand_JiuWei.sh
 ```
 
 卸载JiuWei(ʘᗩʘ’)
 
 ```
-./Remove_JiuWei.sh
+Remove_JiuWei
 ```
 
 
 ## 未来
 
-- [ ] DOCKER-MODE模式支持
+- [ ] DOCKER-MODE模式支持〔docker安装优先〕
+- [ ] 全工具无指定自动批量更新
 - [ ] 重点工具标注「*快速选择优良工具使用*」
 - [ ] Win支持？这似乎有点困难O_o
 
@@ -81,6 +83,9 @@ chmod +x Expand_JiuWei.sh
 [AlpineLinux包管理命令apk](https://gitlab.alpinelinux.org/alpine/apk-tools)
 
 [Debian包管理命令apt](https://salsa.debian.org/apt-team/apt)
+//## 相关信息
+//[JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
+//[JiuWei-fox包管理开源项目](https://gitee.com/CNTangyuan/JiuWei-fox)
 
 
 ## 贡献&联系
