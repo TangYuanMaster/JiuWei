@@ -1,0 +1,51 @@
+#!/bin/bash
+set -e
+# 设置颜色变量
+COLOR_DEFAULT="\e[0m"
+COLOR_RED="\e[31m"
+COLOR_GREEN="\e[32m"
+COLOR_YELLOW="\e[33m"
+COLOR_BLUE="\e[34m"
+COLOR_PURPLE="\e[35m"
+COLOR_CYAN="\e[36m"
+
+interrupt_handler() {
+    echo -e "${COLOR_YELLOW}[*] Received Ctrl+C, Do you want to continue running the script? (Y/n)${COLOR_DEFAULT}"
+    read -r answer
+    case $answer in
+        [Nn]) exit 1;;
+        *) continue;;
+    esac
+}
+trap interrupt_handler SIGINT
+
+if [ $# -lt 2 ]; then
+    echo -e "${COLOR_YELLOW}[*] Please provide the target Github project address and target file name.${COLOR_DEFAULT}"
+    exit 1
+fi
+
+MAIN_DIR="$HOME/JiuWei"
+HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+PACKAGES_INFO=".packages_info" #记录所有的包信息,方便search（文本文件）
+PACKAGES_NAME=".packages_name" #记录所有的包名称,方便install（文本文件）
+CONFIG_FILE="config.list" #配置文件（文本文件）
+FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
+CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
+BIN_FILE=".bin" #快捷命令存放（文件夹）
+ST_FILE=".status" #JiuWei状态检测（文本文件）
+DEFAULT_ANSWER=Y
+
+HBI="$MAIN_DIR/$HBI_FILE"
+PACKAGES_INFO="$MAIN_DIR/$PACKAGES_INFO"
+PACKAGES_NAME="$MAIN_DIR/$PACKAGES_NAME"
+CACHE="$MAIN_DIR/$CACHE_FILE"
+FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
+BIN="$MAIN_DIR/$BIN_FILE"
+ST="$MAIN_DIR/$ST_FILE"
+
+github_repo=$1
+file=$2
+latest_release=$(curl -s "https://api.github.com/repos/$github_repo/releases/latest")
+version=$(echo "$latest_release" | grep -o '"tag_name": "[^"]*' | grep -o '[^"]*$')
+download_url="https://github.com/$github_repo/releases/download/$version/$file"
+wget "$download_url" -O "$CACHE/$file"

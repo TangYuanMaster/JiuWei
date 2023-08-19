@@ -234,11 +234,17 @@ touch "$HBI"
 cd "$BIN"
 
 # 使用wget命令从指定URL下载文件
-if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei-repository/raw/master/fox"; then
+if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/fox"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x fox
+
+if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/get_latest_releases"; then
+    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+    exit 1
+fi
+chmod +x get_latest_releases
 
 if [ ! -n "$TERMUX_VERSION" ]; then
     echo "export \"PATH=\$PATH:$MAIN_DIR/.bin\"" > /data/data/com.termux/files/usr/etc/profile.d/JiuWei.sh
