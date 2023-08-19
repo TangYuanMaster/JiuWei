@@ -30,15 +30,13 @@ fi
 
 MAIN_DIR="$HOME/JiuWei"
 HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
-PACKAGES_FILE=".packages" #记录所有的包信息,方便search（文本文件）
 CONFIG_FILE="config.list" #放置源URL（文本文件）
 FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
 CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
 BIN_FILE=".bin" #快捷命令存放（文件夹）
-ST_FILE=".status" #JiuWei状态检测（文本文件）
+ST_FILE=".expand" #拓展状态文件
 
 HBI="$MAIN_DIR/$HBI_FILE"
-PACKAGES="$MAIN_DIR/$PACKAGES_FILE"
 CONFIG="$MAIN_DIR/$CONFIG_FILE"
 CACHE="$MAIN_DIR/$CACHE_FILE"
 FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
@@ -184,7 +182,7 @@ check_ruby_gem() {
     if ! command -v ruby || ! command -v gem; then
         echo -e "${COLOR_YELLOW}[*] Ruby or Gem is not installed, start downloading and installing...${COLOR_DEFAULT}"
         if [ "$sys_name" = "alpine" ]; then
-            apk add ruby ruby-irb ruby-dev build-base
+            apk add ruby
         elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
             apt install -y ruby-full
         elif [ "$sys_name" = "arch" ]; then
@@ -198,6 +196,24 @@ check_ruby_gem() {
         fi
     fi
 }
+check_bc() {
+    if ! command -v bc >/dev/null 2>&1; then
+        echo -e "${COLOR_YELLOW}[*] bc is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add bc
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y bc
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy bc
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y bc
+        elif [ "$sys_name" = "termux" ]; then
+            apt install -y bc
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y bc
+        fi
+    fi
+}
 check_code() {
     echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
     check_curl
@@ -206,16 +222,15 @@ check_code() {
     check_python3_pip3
     check_go
     check_ruby_gem
+    check_bc
 }
 update_run
 check_code
 
 mkdir -p "$MAIN_DIR" "$BIN" "$CACHE" "$FOXINDEX"
-echo "minimal" > "$ST"
 echo "#Jiuwei repository" > "$CONFIG"
 echo "SOURCE=\"https://gitee.com/CNTangyuan/JiuWei-repository/raw/master\"" >> "$CONFIG"
-touch "$HBI" "$PACKAGES"
-
+touch "$HBI"
 cd "$BIN"
 
 # 使用wget命令从指定URL下载文件

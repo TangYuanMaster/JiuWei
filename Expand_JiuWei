@@ -30,15 +30,13 @@ fi
 
 MAIN_DIR="$HOME/JiuWei"
 HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
-PACKAGES_FILE=".packages" #记录所有的包信息,方便search（文本文件）
 CONFIG_FILE="config.list" #配置文件（文本文件）
 FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
 CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
 BIN_FILE=".bin" #快捷命令存放（文件夹）
-ST_FILE=".status" #JiuWei状态检测（文本文件）
+ST_FILE=".expand" #拓展状态文件
 
 HBI="$MAIN_DIR/$HBI_FILE"
-PACKAGES="$MAIN_DIR/$PACKAGES_FILE"
 CACHE="$MAIN_DIR/$CACHE_FILE"
 FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
@@ -182,6 +180,6 @@ check_code() {
 update_run
 check_code
 
-echo "full" > "$ST"
+touch "$ST"
 
 echo -e "${COLOR_GREEN}[INFO] Thank you for your support of Fox ~ Have a good luck! o\(￣▽￣\)ｄ${COLOR_DEFAULT}"

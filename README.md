@@ -52,7 +52,7 @@
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei"
 chmod +x Setup_JiuWei
-./Setup_JiuWei.sh
+./Setup_JiuWei
 ```
 
 拓展增量至JiuWei-full环境状态((つ≧▽≦)つ
@@ -60,7 +60,7 @@ chmod +x Setup_JiuWei
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei"
 chmod +x Expand_JiuWei
-./Expand_JiuWei.sh
+./Expand_JiuWei
 ```
 
 卸载JiuWei(ʘᗩʘ’)
@@ -83,9 +83,6 @@ Remove_JiuWei
 [AlpineLinux包管理命令apk](https://gitlab.alpinelinux.org/alpine/apk-tools)
 
 [Debian包管理命令apt](https://salsa.debian.org/apt-team/apt)
-//## 相关信息
-//[JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
-//[JiuWei-fox包管理开源项目](https://gitee.com/CNTangyuan/JiuWei-fox)
 
 
 ## 贡献&联系

@@ -1,0 +1,545 @@
+#!/bin/bash
+set -e
+# 设置颜色变量
+COLOR_DEFAULT="\e[0m"
+COLOR_RED="\e[31m"
+COLOR_GREEN="\e[32m"
+COLOR_YELLOW="\e[33m"
+COLOR_BLUE="\e[34m"
+COLOR_PURPLE="\e[35m"
+COLOR_CYAN="\e[36m"
+
+interrupt_handler() {
+    read -p "[*] Received Ctrl+C, Do you want to continue running the script? (Y/n)" answer
+    case $answer in
+        [Nn]) exit 1;;
+        *) continue;;
+    esac
+}
+trap interrupt_handler SIGINT
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${COLOR_RED}[-] This command must be run as root!${COLOR_DEFAULT}"
+        exit 1
+    fi
+}
+if [ ! -n "$TERMUX_VERSION" ]; then
+    check_root
+fi
+
+if [ ! -n "$HOME" ]; then
+    echo -e "${COLOR_RED}[-]\$HOME variables do not exist, please set the variable \$HOME and try again.${COLOR_DEFAULT}"
+fi
+
+MAIN_DIR="$HOME/JiuWei"
+HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+PACKAGES_INFO=".packages_info" #记录所有的包信息,方便search（文本文件）
+PACKAGES_NAME=".packages_name" #记录所有的包名称,方便install（文本文件）
+CONFIG_FILE="config.list" #配置文件（文本文件）
+FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
+CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
+BIN_FILE=".bin" #快捷命令存放（文件夹）
+ST_FILE=".expand" #拓展状态文件
+DEFAULT_ANSWER=Y
+
+HBI="$MAIN_DIR/$HBI_FILE"
+PACKAGES_INFO="$MAIN_DIR/$PACKAGES_INFO"
+PACKAGES_NAME="$MAIN_DIR/$PACKAGES_NAME"
+CACHE="$MAIN_DIR/$CACHE_FILE"
+FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
+BIN="$MAIN_DIR/$BIN_FILE"
+ST="$MAIN_DIR/$ST_FILE"
+source "$MAIN_DIR/$CONFIG_FILE"
+source_url="${SOURCE%/}"
+
+logo() {
+    echo -e "${COLOR_GREEN}          ______ _______   __"
+    echo -e "${COLOR_GREEN}          |  ___|  _  \ \ / /"
+    echo -e "${COLOR_GREEN}          | |_  | | | |\ V / "
+    echo -e "${COLOR_GREEN}          |  _| | | | |/   \ "
+    echo -e "${COLOR_GREEN}          | |   \ \_/ / /^\ \\"
+    echo -e "${COLOR_GREEN}          \_|    \___/\/   \/"
+    echo -e "${COLOR_BLUE}          ～ Version : 0.4 ～"
+    echo -e "${COLOR_PURPLE}       JiuWei packages management${COLOR_DEFAULT}"
+}
+
+usage() {
+    logo
+    echo -e "Usage: ${COLOR_YELLOW}fox [command] [package] [parameter]${COLOR_DEFAULT}"
+    echo -e "${COLOR_GREEN}Commands:${COLOR_DEFAULT}"
+    echo -e "  ${COLOR_CYAN}install${COLOR_DEFAULT}      - Install a package"
+    echo -e "  ${COLOR_CYAN}remove${COLOR_DEFAULT}       - Remove a package"
+    echo -e "  ${COLOR_CYAN}list${COLOR_DEFAULT}         - List all installed packages"
+    echo -e "  ${COLOR_CYAN}search${COLOR_DEFAULT}       - Search for a package"
+    echo -e "  ${COLOR_CYAN}upgrade${COLOR_DEFAULT}      - Upgrade installed packages"
+    echo -e "  ${COLOR_CYAN}update${COLOR_DEFAULT}       - Update package index"
+    echo -e "  ${COLOR_CYAN}info${COLOR_DEFAULT}         - Show package information"
+    echo -e "  ${COLOR_CYAN}ABOUT${COLOR_DEFAULT}        - Show the info about JiuWei with fox"
+    echo -e "${COLOR_GREEN}Parameters:${COLOR_DEFAULT}"
+    echo -e "  ${COLOR_CYAN}--no-update${COLOR_DEFAULT}  - No update when run the commands"
+    echo -e "  ${COLOR_CYAN}--debug${COLOR_DEFAULT}      - Display execution process"
+}
+
+install_package() {
+    if [ -s "$PACKAGES_NAME" ]; then
+        pattern="$package:"
+        if grep -q "^${pattern}" "$HBI"; then
+            echo -e "${COLOR_YELLOW}[*] Package '$package' is already installed.${COLOR_DEFAULT}"
+        else
+            if grep -qw "$package" "$PACKAGES_NAME"; then
+                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+                    if [ -f "$ST" ]; then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                            exit 1
+                        fi
+                    else
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                fi
+                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+                    local run=$(grep -A 1 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+                else
+                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+                        local run=$(grep -A 1 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
+                    else
+                        echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                fi
+            else
+                echo -e "${COLOR_RED}[-] $package does not support installation, update the list of later lists? Try \"fox update\".${COLOR_DEFAULT}"
+                exit 1
+            fi
+            update_run
+            check_code
+            local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+            local run=${run//\"\$BIN\"/$BIN}
+            if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
+                echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
+            fi
+            eval "$run"
+            
+            if [ $? -eq 0 ]; then
+                get_ver
+                echo "$package:$version" >> "$HBI"
+                echo -e "${COLOR_GREEN}[+] Package '$package' has been installed.${COLOR_DEFAULT}"
+            else
+                echo -e "${COLOR_RED}[-] Failed to download package '$package'. Check your software source.${COLOR_DEFAULT}"
+            fi
+        fi
+    else
+        echo -e "${COLOR_RED}[-] Package_name text loss. Try \"fox update\".${COLOR_DEFAULT}"
+    fi
+}
+
+remove_package() {
+    pattern="$package:"
+    if grep -q "^${pattern}" "$HBI"; then
+        if [ ! -e "$CACHE/$package.fox" ]; then
+            if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+                if [ -f "$ST" ]; then
+                    if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                else
+                    echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+                    exit 1
+                fi
+            fi
+        fi
+        if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+            local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 3)
+        else
+            grep -q "^$sys_name:$" "$CACHE/$package.fox"
+            local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
+        fi
+        update_run
+        check_code
+        local run=${run//\"\$BIN\"/$BIN}
+        local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
+            echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
+        fi
+        eval "$run"
+        sed -i "/^${pattern}$/d" "$HBI"
+        rm "$CACHE/$package.fox"
+        echo -e "${COLOR_GREEN}[+] Package '$package' has been removed.${COLOR_DEFAULT}"
+    else
+        echo -e "${COLOR_YELLOW}[*] Package '$package' is not installed.${COLOR_DEFAULT}"
+    fi
+}
+
+list_packages() {
+    if [[ -s "$HBI" ]]; then
+        echo -e "${COLOR_YELLOW}[*] Installed packages:${COLOR_DEFAULT}"
+        cat "$HBI"
+    else
+        echo -e "${COLOR_YELLOW}[*] No packages are currently installed.${COLOR_DEFAULT}"
+    fi
+}
+
+generate_package_info() {
+    awk -F ':' '/^P:/{print $2}' "$FOXINDEX/FOXINDEX" > "$PACKAGES_NAME"
+    rm "$PACKAGES_INFO"
+    while IFS= read -r package; do
+        local version=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^V:" | awk -F ':' '{print $2}')
+        local desc=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^T:" | awk -F ':' '{print $2}')
+        echo "$package:$version | $desc" >> "$PACKAGES_INFO"
+    done < "$PACKAGES_NAME"
+}
+
+search_package() {
+    if [ -s "$PACKAGES_INFO" ]; then
+        cat "$PACKAGES_INFO" | grep --color=auto "$package"
+    else
+        echo -e "${COLOR_RED}[-] Packages_info text loss. Try \"fox update\"${COLOR_DEFAULT}"
+    fi
+}
+
+upgrade_a_package() {
+    if [[ -s "$HBI" ]]; then
+        pattern="$package:"
+        if grep -q "^${pattern}" "$HBI"; then
+            now_version=$(grep "^$package" "$HBI" | awk -F: '{print $2}')
+            
+            package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
+            latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
+            if (( $(echo "$latest_version > $now_version" | bc -l) )); then
+                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+                    if [ -f "$ST" ]; then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                            exit 1
+                        fi
+                    else
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                fi
+                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+                    local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
+                else
+                    grep -q "^$sys_name:$" "$CACHE/$package.fox"
+                    local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                fi
+            else
+                echo -e "${COLOR_YELLOW}[*] Package '$package' already the latest version.${COLOR_DEFAULT}"
+                exit 1
+            fi
+        else
+            echo -e "${COLOR_YELLOW}[*] Package '$package' is not installed.${COLOR_DEFAULT}"
+            exit 1
+        fi
+        update_run
+        check_code
+        local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        local run=${run//\"\$BIN\"/$BIN}
+        if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
+            echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
+        fi
+        eval "$run"
+        echo -e "${COLOR_GREEN}[+] Package '$package' upgraded.${COLOR_DEFAULT}"
+        update_now_version
+    else
+        echo -e "${COLOR_YELLOW}[*] No packages are currently installed.${COLOR_DEFAULT}"
+    fi
+}
+
+upgrade_all_packages() {
+    if [[ -s "$HBI" ]]; then
+        cat "$HBI" | while IFS=':' read -r package _
+        do
+            now_version=$(grep "^$package" "$HBI" | awk -F: '{print $2}')
+            package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
+            latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
+            if (( $(echo "$latest_version > $now_version" | bc -l) )); then
+                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+                    if [ -f "$ST" ]; then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                            exit 1
+                        fi
+                    else
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                fi
+                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+                    local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
+                else
+                    grep -q "^$sys_name:$" "$CACHE/$package.fox"
+                    local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                fi
+                update_run
+                check_code
+                local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+                local run=${run//\"\$BIN\"/$BIN}
+                if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
+                    echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
+                fi
+                eval "$run"
+                echo -e "${COLOR_GREEN}[+] Package '$package' upgraded.${COLOR_DEFAULT}"
+                update_now_version
+            else
+                echo -e "${COLOR_YELLOW}[*] Package '$package' already the latest version.${COLOR_DEFAULT}"
+                continue
+            fi
+        done
+    else
+        echo -e "${COLOR_YELLOW}[*] No packages are currently installed.${COLOR_DEFAULT}"
+    fi
+}
+
+update_now_version() {
+    sed -i "s/^$package:$now_version$/$package:$latest_version/" "$HBI"
+}
+
+update() {
+    curl -o "$FOXINDEX/FOXINDEX.tar.gz" -L "$source_url/FOXINDEX.tar.gz"
+    if [ $? -ne 0 ]; then
+        echo -e "${COLOR_RED}[-] Failed to download FOXINDEX.tar.gz. Check your software source.${COLOR_DEFAULT}"
+        exit 1
+    fi
+    tar -xf "$FOXINDEX/FOXINDEX.tar.gz" -C "$FOXINDEX/"
+    rm "$FOXINDEX/FOXINDEX.tar.gz"
+    generate_package_info
+    echo -e "${COLOR_GREEN}[+] Package index has been updated.${COLOR_DEFAULT}"
+}
+
+info() {
+    if [ -s "$FOXINDEX/FOXINDEX" ]; then
+        grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | awk 'BEGIN{pkg="";ver="";arch="";info="";github=""} 
+            /^P:/{pkg=$2} 
+            /^V:/{ver=$2} 
+            /^L:/{lang=$2} 
+            /^T:/{info=$2} 
+            /^G:/{github=$2} 
+            END{
+                print "Package:", pkg; 
+                print "Version:", ver; 
+                print "Language:", lang; 
+                print "Introduction:", info;
+                print "GitHub:", (github=="" ? "Not available" : github)
+        }'
+    else
+        echo -e "${COLOR_RED}[-] FOXINDEX file loss. Try \"fox update\"${COLOR_DEFAULT}"
+    fi
+}
+
+get_ver() {
+    if [ -s "$FOXINDEX/FOXINDEX" ]; then
+        package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
+        version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
+    else
+        echo -e "${COLOR_RED}[-] FOXINDEX file loss. Try \"fox update\"${COLOR_DEFAULT}"
+    fi
+}
+
+about() {
+    logo
+    echo -e "${COLOR_BLUE}[Gitee Project Main Address]${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei${COLOR_DEFAULT}"
+    echo -e "${COLOR_BLUE}[Gitee Project Repository Address]${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei-repository${COLOR_DEFAULT}"
+    echo -e "${COLOR_BLUE}[Maintor&Developer]${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > TangYuan${COLOR_DEFAULT}"
+}
+
+main() {
+    command=$1
+    package=$2
+    parameters_1=$3
+    parameters_2=$4
+    
+    case "$command" in
+        install)
+            if [[ -z $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+            else
+                install_package "$package"
+            fi
+            ;;
+        remove)
+            if [[ -z $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+            else
+                remove_package "$package"
+            fi
+            ;;
+        list)
+            if [[ -n $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] Package parameter is not required for 'list' command.${COLOR_DEFAULT}"
+            fi
+            list_packages
+            ;;
+        search)
+            if [[ -z $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+            else
+                search_package "$package"
+            fi
+            ;;
+        upgrade)
+            read -p "[*] Do you need to update local data? (Y/n)" answer
+            if [ "$answer" != "n" ]; then
+                update
+            fi
+            if [[ -z $package ]]; then
+                upgrade_all_packages
+            else
+                upgrade_a_package
+            fi
+            ;;
+        update)
+            if [[ -n $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] Package parameter is not required for 'update' command.${COLOR_DEFAULT}"
+            fi
+            update
+            ;;
+        info)
+            if [[ -z $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+            else
+                info "$package"
+            fi
+            ;;
+        ABOUT)
+            if [[ -n $package ]]; then
+                echo -e "${COLOR_YELLOW}[*] Package parameter is not required for 'update' command.${COLOR_DEFAULT}"
+            fi
+            about
+            ;;
+        *)
+            echo -e "${COLOR_YELLOW}[*] Unknown command: $command.${COLOR_DEFAULT}"
+            usage
+            ;;
+    esac
+}
+
+sys_info=$(uname -a)
+if [ -f "/etc/os-release" ]; then
+    if grep -qiF 'ID=*alpine*' /etc/os-release; then
+        sys_name="alpine"
+    elif grep -qiF 'ID=*debian*' /etc/os-release; then
+        sys_name="debian"
+    elif grep -qiF 'ID=*ubuntu*' /etc/os-release; then
+        sys_name="ubuntu"
+    elif grep -qiF 'ID=*kali*' /etc/os-release; then
+        sys_name="kali"
+    elif grep -qiF 'ID=*arch*' /etc/os-release; then
+        sys_name="arch"
+    elif grep -qiF 'ID=*centos*' /etc/os-release; then
+        sys_name="centos"
+    elif grep -qiF 'ID=*rhel*' /etc/os-release; then
+        sys_name="redhat"
+    fi
+else
+    if [ -n "$TERMUX_VERSION" ]; then
+        sys_name="termux"
+    elif command -v "sw_vers"; then
+        sys_name="darwin"
+    else
+        echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
+        exit 1
+    fi
+fi
+#if [[ $BUILD == true ]]; then
+#    sys_name="build"
+#else
+#    if [[ $BUILD !== false ]]; then
+#        echo -e "${COLOR_RED}[-] The BUILD variable is incorrect, please check the config.list file.${COLOR_DEFAULT}"
+#        exit 1
+#    fi
+#fi
+sys_arch=$(uname -m)
+
+update_run() {
+    if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
+        echo -e "${COLOR_YELLOW}[*] Skip update～=_=${COLOR_DEFAULT}"
+    else
+        echo -e "${COLOR_YELLOW}[*] Update...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            local run="apk update"
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            local run="apt update"
+        elif [ "$sys_name" = "arch" ]; then
+            local run="pacman -Sy"
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            local run="dnf -y update"
+        elif [ "$sys_name" = "termux" ]; then
+            local run="apt update"
+        elif [ "$sys_name" = "darwin" ]; then
+            local run="brew update"
+        fi
+    fi
+    if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
+        echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
+    fi
+    eval "$run"
+}
+
+check_curl() {
+    if ! command -v curl &> /dev/null; then
+        echo -e "${COLOR_YELLOW}[*] Curl is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add curl
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y curl
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy curl
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            dnf install -y curl
+        elif [ "$sys_name" = "termux" ]; then
+            apt install -y curl
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y curl
+        fi
+    fi
+}
+check_wget() {
+    if ! command -v wget &> /dev/null; then
+        echo -e "${COLOR_YELLOW}[*] Wget is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add wget
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y wget
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy wget
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            dnf install -y wget
+        elif [ "$sys_name" = "termux" ]; then
+            apt install -y wget
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y wget
+        fi
+    fi
+}
+check_git() {
+    if ! command -v git &> /dev/null; then
+        echo -e "${COLOR_YELLOW}[*] Git is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add git
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y git
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy git
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            dnf install -y git
+        elif [ "$sys_name" = "termux" ]; then
+            apt install -y git
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y git
+        fi
+    fi
+}
+check_code() {
+    echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
+    check_curl
+    check_wget
+    check_git
+}
+
+main "$@"

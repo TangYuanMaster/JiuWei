@@ -45,6 +45,7 @@ BIN="$MAIN_DIR/$BIN_FILE"
 
 main() {
 if [ ! -d "$MAIN_DIR" ]; then
+    remove_all_packages
     rm -rf "$MAIN_DIR"
 else
     echo -e "${COLOR_YELLOW}[WARN] You haven't installed JiuWei, do you need to install?[Y/n]${COLOR_DEFAULT}"
@@ -57,6 +58,39 @@ else
         ./Setup_JiuWei
     fi
 fi
+}
+
+remove_all_packages() {
+    cat "$HBI" | while IFS=':' read -r package _
+    do
+        if [ ! -e "$CACHE/$package.fox" ]; then
+            if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+                if [ -f "$ST" ]; then
+                    if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                        exit 1
+                    fi
+                else
+                    echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+                    exit 1
+                fi
+            fi
+        fi
+        if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+            local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 3)
+        else
+            grep -q "^$sys_name:$" "$CACHE/$package.fox"
+            local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
+        fi
+        update_run
+        check_code
+        local run=${run//\"\$BIN\"/$BIN}
+        local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        eval "$run"
+        sed -i "/^${pattern}$/d" "$HBI"
+        rm "$CACHE/$package.fox"
+        echo -e "${COLOR_GREEN}[+] Package '$package' has been removed.${COLOR_DEFAULT}"
+    done
 }
 
 echo -e "${COLOR_YELLOW}[WARN] Are you sure you want to delete JiuWei? The fox will be sad when you delete JiuWei?[y/N]${COLOR_DEFAULT}"
