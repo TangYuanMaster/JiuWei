@@ -1,4 +1,8 @@
+[![Fork me on Gitee](https://gitee.com/CNTangyuan/JiuWei/widgets/widget_5.svg)](https://gitee.com/CNTangyuan/JiuWei)
+
 # JiuWei | [JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
+
+[![star](https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark)](https://gitee.com/CNTangyuan/JiuWei/stargazers)
 
 **JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具.｜A convenient, multi-purpose integrated tool for network security <u>packet management</u>.**
 
