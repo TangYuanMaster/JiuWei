@@ -104,8 +104,12 @@ install_package() {
                     if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
                         local run=$(grep -A 1 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
                     else
-                        echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
-                        exit 1
+                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
+                        else
+                            echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
+                            exit 1
+                        fi
                     fi
                 fi
             else
@@ -153,8 +157,13 @@ remove_package() {
         if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
             local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 3)
         else
-            grep -q "^$sys_name:$" "$CACHE/$package.fox"
-            local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
+            if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+                local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
+            else
+                if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                    local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
+                fi
+            fi
         fi
         update_run
         check_code
@@ -222,8 +231,13 @@ upgrade_a_package() {
                 if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
                     local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
                 else
-                    grep -q "^$sys_name:$" "$CACHE/$package.fox"
-                    local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+                        local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                    else
+                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
+                        fi
+                    fi
                 fi
             else
                 echo -e "${COLOR_YELLOW}[*] Package '$package' already the latest version.${COLOR_DEFAULT}"
@@ -270,8 +284,13 @@ upgrade_all_packages() {
                 if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
                     local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
                 else
-                    grep -q "^$sys_name:$" "$CACHE/$package.fox"
-                    local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+                        local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
+                    else
+                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
+                        fi
+                    fi
                 fi
                 update_run
                 check_code
