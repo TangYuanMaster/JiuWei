@@ -1,10 +1,8 @@
-[![Fork me on Gitee](https://gitee.com/CNTangyuan/JiuWei/widgets/widget_5.svg)](https://gitee.com/CNTangyuan/JiuWei)
-
 # JiuWei | [JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
-
-[![star](https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark)](https://gitee.com/CNTangyuan/JiuWei/stargazers)
+ 
 
 **JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具.｜A convenient, multi-purpose integrated tool for network security <u>packet management</u>.**
+ 
 
 ![logo](img/logo.jpg)
 
@@ -56,7 +54,7 @@
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei"
 chmod +x Setup_JiuWei
-./Setup_JiuWei
+./Setup_JiuWei.sh
 ```
 
 拓展增量至JiuWei-full环境状态((つ≧▽≦)つ
@@ -64,7 +62,7 @@ chmod +x Setup_JiuWei
 ```
 wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei"
 chmod +x Expand_JiuWei
-./Expand_JiuWei
+./Expand_JiuWei.sh
 ```
 
 卸载JiuWei(ʘᗩʘ’)
