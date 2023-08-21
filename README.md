@@ -1,8 +1,20 @@
-# JiuWei | [JiuWei-repository](https://gitee.com/CNTangyuan/JiuWei-repository)
+<h1 align="center">
+  <br>
+  <img src="img/logo.jpg" alt="logo">
+  <br>
+  JiuWei | <a href="https://gitee.com/CNTangyuan/JiuWei-repository">JiuWei-repository</a>
+  <br>
+</h1>
 
-JiuWei - 一款便捷、多用途式网安类<u>包管理集成</u>工具. | A convenient, multi-purpose integrated tool for network security <u>packet management</u>.<br>
-<br>
-![logo](img/logo.jpg)
+<h4 align="center">JiuWei - 一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.</h4>
+
+<p align="center">
+  <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
+      <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
+  </a>
+</p>
+[![GitHub watchers](https://img.shields.io/github/watchers/Gameye98/Lazymux.svg)](https://github.com/Gameye98/Lazymux/watchers)
+[![Bash](https://img.shields.io/badge/language-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 
 ## 使用声明
 
