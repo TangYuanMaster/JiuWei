@@ -9,6 +9,8 @@
 <h4 align="center">  一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.  </h4>
 
 <p align="center">
+    <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
+      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark' alt='star'></img></a>
   <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
       <img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=gray' alt='fork'></img></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
