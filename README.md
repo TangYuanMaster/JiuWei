@@ -14,7 +14,7 @@
   <a href="https://www.gnu.org/software/bash/">
       <img src="https://img.shields.io/badge/language-Bash-blue.svg" alt="Bash">
   <a href="https://gitee.com/CNTangyuan/JiuWei/watchers">
-      <img src="https://img.shields.io/gitee/watchers/CNTangyuan/JiuWei.svg?style=social" alt="Watchers">
+      <a href='https://gitee.com/CNTangyuan/JiuWei/members'><img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=gray' alt='fork'></img></a>
   </a>
 </p>
 
