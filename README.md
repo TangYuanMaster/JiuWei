@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">JiuWei - 一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.</h4>
+<h4 align="center">  一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.  </h4>
 
 <p align="center">
   <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
@@ -105,7 +105,7 @@ Remove_JiuWei
 
 1. [提交Gitee-iSSUES议题](https://gitee.com/CNTangyuan/JiuWei/issues)
 2. [CSDN-TY汤圆](https://blog.csdn.net/qq_57851190)
-3. [QQ交流群-【𝑻𝒀𝑿𝑪】](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=OVsNn-8iWP5HTTARzTNzfOcgCngXp3gH&authKey=03ZWzlYVvCH6Cpq2Pa7nIEqOFiXw2svp96C896bcZc4Rpg%2FTNk2c2F8asJ4U7tiK&noverify=0&group_code=751386568)
+3. [QQ交流群-【TYXC】](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=OVsNn-8iWP5HTTARzTNzfOcgCngXp3gH&authKey=03ZWzlYVvCH6Cpq2Pa7nIEqOFiXw2svp96C896bcZc4Rpg%2FTNk2c2F8asJ4U7tiK&noverify=0&group_code=751386568)
 
 【QQ群号：751386568】
 
