@@ -9,12 +9,12 @@
 <h4 align="center">JiuWei - 一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.</h4>
 
 <p align="center">
+  <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
+      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=gray' alt='fork'></img></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
       <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
   <a href="https://www.gnu.org/software/bash/">
       <img src="https://img.shields.io/badge/language-Bash-blue.svg" alt="Bash">
-  <a href="https://gitee.com/CNTangyuan/JiuWei/watchers">
-      <a href='https://gitee.com/CNTangyuan/JiuWei/members'><img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=gray' alt='fork'></img></a>
   </a>
 </p>
 
