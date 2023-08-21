@@ -170,12 +170,31 @@ check_python2_pip2() {
         fi
     fi
 }
+check_perl() {
+    if ! command -v perl; then
+        echo -e "${COLOR_YELLOW}[*] Perl is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add perl
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y perl
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy perl
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y perl
+        elif [ "$sys_name" = "termux" ]; then
+            pkg install -y perl
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y perl
+        fi
+    fi
+}
 check_code() {
     echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
     check_rust_cargo
     check_node_npm
     check_java
     check_python2_pip2
+    check_perl
 }
 update_run
 check_code

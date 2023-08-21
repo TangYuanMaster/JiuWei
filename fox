@@ -49,6 +49,7 @@ CACHE="$MAIN_DIR/$CACHE_FILE"
 FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
 ST="$MAIN_DIR/$ST_FILE"
+VERSION="0.5"
 source "$MAIN_DIR/$CONFIG_FILE"
 source_url="${SOURCE%/}"
 
@@ -59,7 +60,7 @@ logo() {
     echo -e "${COLOR_GREEN}          |  _| | | | |/   \ "
     echo -e "${COLOR_GREEN}          | |   \ \_/ / /^\ \\"
     echo -e "${COLOR_GREEN}          \_|    \___/\/   \/"
-    echo -e "${COLOR_BLUE}          ～ Version : 0.4 ～"
+    echo -e "${COLOR_BLUE}          ～ Version : $VERSION ～"
     echo -e "${COLOR_PURPLE}       JiuWei packages management${COLOR_DEFAULT}"
 }
 
@@ -120,6 +121,9 @@ install_package() {
             check_code
             local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
             local run=${run//\"\$BIN\"/$BIN}
+            if [[ "$run" == *"github.com"* ]]; then
+                read -p "[*] Detected the need to retrieve files from GitHub. It is recommended to use a VPN. Press Enter to continue..."
+            fi
             if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
                 echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
             fi
