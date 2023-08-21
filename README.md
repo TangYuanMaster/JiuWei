@@ -11,10 +11,12 @@
 <p align="center">
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
       <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
+  <a href="https://www.gnu.org/software/bash/">
+      <img src="https://img.shields.io/badge/language-Bash-blue.svg" alt="Bash">
+  <a href="https://gitee.com/CNTangyuan/JiuWei/watchers">
+      <img src="https://img.shields.io/gitee/watchers/CNTangyuan/JiuWei.svg?style=social" alt="Watchers">
   </a>
 </p>
-[![GitHub watchers](https://img.shields.io/github/watchers/Gameye98/Lazymux.svg)](https://github.com/Gameye98/Lazymux/watchers)
-[![Bash](https://img.shields.io/badge/language-Bash-blue.svg)](https://www.gnu.org/software/bash/)
 
 ## 使用声明
 
