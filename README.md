@@ -11,8 +11,8 @@
 <p align="center">
     <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
       <img src='https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark' alt='star'></img></a>
-  <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
-      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=gray' alt='fork'></img></a>
+    <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
+      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=dark' alt='fork'></img></a>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
       <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
   <a href="https://www.gnu.org/software/bash/">
