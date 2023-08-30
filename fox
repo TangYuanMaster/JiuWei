@@ -504,19 +504,19 @@ main() {
 
 sys_info=$(uname -a)
 if [ -f "/etc/os-release" ]; then
-    if grep -qiF 'ID=*alpine*' /etc/os-release; then
+    if grep -qi 'ID=*alpine*' /etc/os-release; then
         sys_name="alpine"
-    elif grep -qiF 'ID=*debian*' /etc/os-release; then
+    elif grep -qi 'ID=*debian*' /etc/os-release; then
         sys_name="debian"
-    elif grep -qiF 'ID=*ubuntu*' /etc/os-release; then
+    elif grep -qi 'ID=*ubuntu*' /etc/os-release; then
         sys_name="ubuntu"
-    elif grep -qiF 'ID=*kali*' /etc/os-release; then
+    elif grep -qi 'ID=*kali*' /etc/os-release; then
         sys_name="kali"
-    elif grep -qiF 'ID=*arch*' /etc/os-release; then
+    elif grep -qi 'ID=*arch*' /etc/os-release; then
         sys_name="arch"
-    elif grep -qiF 'ID=*centos*' /etc/os-release; then
+    elif grep -qi 'ID=*centos*' /etc/os-release; then
         sys_name="centos"
-    elif grep -qiF 'ID=*rhel*' /etc/os-release; then
+    elif grep -qi 'ID=*rhel*' /etc/os-release; then
         sys_name="redhat"
     fi
 else
