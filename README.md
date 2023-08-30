@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">  一款便捷、多用途式网安类包管理集成工具. | A convenient, multi-purpose integrated tool for network security packet management.  </h4>
+<h4 align="center">  一款高自定义化、国内化的类网安包管理集成项目. | A highly customized and domestic network security package management integration project.  </h4>
 
 <p align="center">
     <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
