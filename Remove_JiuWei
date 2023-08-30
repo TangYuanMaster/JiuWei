@@ -77,10 +77,10 @@ remove_all_packages() {
             fi
         fi
         if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-            local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 3)
+            local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
         else
             grep -q "^$sys_name:$" "$CACHE/$package.fox"
-            local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
+            local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
         fi
         update_run
         check_code

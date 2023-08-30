@@ -1,0 +1,94 @@
+#!/bin/bash
+set -e
+# 设置颜色变量
+COLOR_DEFAULT="\e[0m"
+COLOR_RED="\e[31m"
+COLOR_GREEN="\e[32m"
+COLOR_YELLOW="\e[33m"
+COLOR_BLUE="\e[34m"
+COLOR_PURPLE="\e[35m"
+COLOR_CYAN="\e[36m"
+
+interrupt_handler() {
+    read -p "[*] Received Ctrl+C, Do you want to continue running the script? (Y/n)" answer
+    case $answer in
+        [Nn]) exit 1;;
+        *) echo -e "${COLOR_GREEN}[*] Continuing...${COLOR_DEFAULT}" && return;;
+    esac
+}
+trap interrupt_handler SIGINT
+check_root() {
+    if [[ $EUID -ne 0 ]]; then
+        echo -e "${COLOR_RED}[-] This command must be run as root!${COLOR_DEFAULT}"
+        exit 1
+    fi
+}
+if [ ! -n "$TERMUX_VERSION" ]; then
+    check_root
+fi
+
+echo -e "${COLOR_RED} _____________       ___       __    _____ ${COLOR_DEFAULT}"
+echo -e "${COLOR_RED} ______  /__(_)___  ___ |     / /_______(_)${COLOR_DEFAULT}"
+echo -e "${COLOR_RED} ___ _  /__  /_  / / /_ | /| / /_  _ \_  / ${COLOR_DEFAULT}"
+echo -e "${COLOR_RED} / /_/ / _  / / /_/ /__ |/ |/ / /  __/  /  ${COLOR_DEFAULT}"
+echo -e "${COLOR_RED} \____/  /_/  \__,_/ ____/|__/  \___//_/   ${COLOR_DEFAULT}"
+echo -e "${COLOR_RED}                                           ${COLOR_DEFAULT}"
+
+MAIN_DIR="$HOME/JiuWei"
+HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+HBI="$MAIN_DIR/$HBI_FILE"
+
+num=0
+count=$(grep -c "" "$HBI" )
+
+sys_arch=$(uname -m)
+echo -e "${COLOR_GREEN} · A highly customized and domestic network security package management integration project... ${COLOR_DEFAULT}"
+echo -e "Counting tools in JiuWei... ${COLOR_YELLOW}[ $count ]${COLOR_DEFAULT}"
+if [ -f "/etc/os-release" ]; then
+    if grep -qiF 'ID=*alpine*' /etc/os-release; then
+        num=$((num + 40))
+        sys_name="alpine"
+    elif grep -qiF 'ID=*debian*' /etc/os-release; then
+        num=$((num + 40))
+        sys_name="debian"
+    elif grep -qiF 'ID=*ubuntu*' /etc/os-release; then
+        num=$((num + 35))
+        sys_name="ubuntu"
+    elif grep -qiF 'ID=*kali*' /etc/os-release; then
+        num=$((num + 50))
+        sys_name="kali"
+    elif grep -qiF 'ID=*arch*' /etc/os-release; then
+        num=$((num + 30))
+        sys_name="arch"
+    elif grep -qiF 'ID=*centos*' /etc/os-release; then
+        num=$((num + 25))
+        sys_name="centos"
+    elif grep -qiF 'ID=*rhel*' /etc/os-release; then
+        num=$((num + 20))
+        sys_name="redhat"
+    fi
+else
+    if [ -n "$TERMUX_VERSION" ]; then
+        num=$((num + 35))
+        sys_name="termux"
+    elif command -v "sw_vers"; then
+        num=$((num + 30))
+        sys_name="darwin"
+    fi
+fi
+if [ -n "$sys_name" ]; then
+    echo -e "Your System Name is ${COLOR_BLUE}$sys_name${COLOR_DEFAULT} ${COLOR_GREEN}[ √ ]${COLOR_DEFAULT}"
+else
+    echo -e "${COLOR_YELLOW}Your System is not supported. ${COLOR_RED}[ 㐅 ]${COLOR_DEFAULT}"
+fi
+
+if [ "$sys_arch" == "x86_64" ]; then
+    num=$((num + 50))
+    echo -e "Your System Architecture is $sys_name ${COLOR_GREEN}[ √ ]${COLOR_DEFAULT}"
+elif [ "$sys_arch" == "aarch64" ] || [ "$sys_arch" == "i386" ] || [ "$sys_arch" == "x86" ]; then
+    num=$((num + 40))
+    echo -e "Your System Architecture is ${COLOR_BLUE}$sys_arch${COLOR_DEFAULT} ${COLOR_GREEN}[ √ ]${COLOR_DEFAULT}"
+else
+    echo -e "Your System Architecture is not supported. ${COLOR_RED}[ 㐅 ]${COLOR_DEFAULT}"
+fi
+echo -e "Statistical ultimate compatibility... ${COLOR_YELLOW}[ $num% ]${COLOR_DEFAULT}"

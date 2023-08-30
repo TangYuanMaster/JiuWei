@@ -13,7 +13,7 @@ interrupt_handler() {
     read -p "[*] Received Ctrl+C, Do you want to continue running the script? (Y/n)" answer
     case $answer in
         [Nn]) exit 1;;
-        *) continue;;
+        *) echo -e "${COLOR_GREEN}[*] Continuing...${COLOR_DEFAULT}" && return;;
     esac
 }
 trap interrupt_handler SIGINT
@@ -81,6 +81,48 @@ usage() {
     echo -e "  ${COLOR_CYAN}--debug${COLOR_DEFAULT}      - Display execution process"
 }
 
+get_from_github() {
+    if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
+        if [ -f "$ST" ]; then
+            if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
+                echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
+                exit 1
+            fi
+        else
+            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
+            exit 1
+        fi
+    fi
+}
+
+get_run() {
+    if [[ "$1" == "install" ]]; then
+        local num="1"
+    elif [[ "$2" == "upgrade" ]]; then
+        local num="2"
+    elif [[ "$2" == "remove" ]]; then
+        local num="3"
+    fi
+    if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+        run=$(grep -A "$num" "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+    else
+        if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+            run=$(grep -A "$num" "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
+        else
+            if grep -q "^$sys_name/$sys_arch:$" "$CACHE/$package.fox"; then
+                run=$(grep -A "$num" "^$sys_name/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+            else
+                if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                    run=$(grep -A "$num" "^generic:$" "$CACHE/$package.fox" | tail -n 1)
+                else
+                    echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
+                    exit 1
+                fi
+            fi
+        fi
+    fi
+}
+
 install_package() {
     if [ -s "$PACKAGES_NAME" ]; then
         pattern="$package:"
@@ -88,39 +130,37 @@ install_package() {
             echo -e "${COLOR_YELLOW}[*] Package '$package' is already installed.${COLOR_DEFAULT}"
         else
             if grep -qw "$package" "$PACKAGES_NAME"; then
-                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
-                    if [ -f "$ST" ]; then
-                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
-                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
-                            exit 1
-                        fi
-                    else
-                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
-                        exit 1
-                    fi
-                fi
-                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-                    local run=$(grep -A 1 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
-                else
-                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
-                        local run=$(grep -A 1 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
-                    else
-                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
-                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
+                if [ "$GITEE_PRIORITY" = "True" ];then
+                    if ! wget -O "$CACHE/$package.fox" "$source_url/main/Gitee/$package.fox"; then
+                        if [ -f "$ST" ]; then
+                            if ! wget -O "$CACHE/$package.fox" "$source_url/expand/Gitee/$package.fox"; then
+                                echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee...${COLOR_DEFAULT}"
+                                read -p "[*] Do you want to install fox file by default installation plan ? (y/N)" answer
+                                case $answer in
+                                    [Yy]) get_from_github;;
+                                    *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                                esac
+                            fi
                         else
-                            echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
-                            exit 1
+                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee or need expand...${COLOR_DEFAULT}"
+                            read -p "[*] Do you want to try for install fox file by default installation plan ? (y/N)" answer
+                            case $answer in
+                                [Yy]) get_from_github;;
+                                *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                            esac
                         fi
                     fi
+                else
+                    get_from_github
                 fi
             else
                 echo -e "${COLOR_RED}[-] $package does not support installation, update the list of later lists? Try \"fox update\".${COLOR_DEFAULT}"
                 exit 1
             fi
+            get_run "install"
             update_run
-            check_code
-            local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-            local run=${run//\"\$BIN\"/$BIN}
+            run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+            run=${run//\"\$BIN\"/$BIN}
             if [[ "$run" == *"github.com"* ]]; then
                 read -p "[*] Detected the need to retrieve files from GitHub. It is recommended to use a VPN. Press Enter to continue..."
             fi
@@ -146,33 +186,34 @@ remove_package() {
     pattern="$package:"
     if grep -q "^${pattern}" "$HBI"; then
         if [ ! -e "$CACHE/$package.fox" ]; then
-            if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
-                if [ -f "$ST" ]; then
-                    if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
-                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
-                        exit 1
+            if [ "$GITEE_PRIORITY" = "True" ];then
+                if ! wget -O "$CACHE/$package.fox" "$source_url/main/Gitee/$package.fox"; then
+                    if [ -f "$ST" ]; then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/Gitee/$package.fox"; then
+                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee...${COLOR_DEFAULT}"
+                            read -p "[*] Do you want to install fox file by default installation plan ? (y/N)" answer
+                            case $answer in
+                                [Yy]) get_from_github;;
+                                *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                            esac
+                        fi
+                    else
+                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee or need expand...${COLOR_DEFAULT}"
+                        read -p "[*] Do you want to try for install fox file by default installation plan ? (y/N)" answer
+                        case $answer in
+                            [Yy]) get_from_github;;
+                            *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                        esac
                     fi
-                else
-                    echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
-                    exit 1
                 fi
-            fi
-        fi
-        if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-            local run=$(grep -A 3 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 3)
-        else
-            if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
-                local run=$(grep -A 3 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 3)
             else
-                if grep -q "^generic:$" "$CACHE/$package.fox"; then
-                    local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
-                fi
+                get_from_github
             fi
         fi
+        get_run "remove"
         update_run
-        check_code
-        local run=${run//\"\$BIN\"/$BIN}
-        local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        run=${run//\"\$BIN\"/$BIN}
+        run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -198,8 +239,8 @@ generate_package_info() {
     awk -F ':' '/^P:/{print $2}' "$FOXINDEX/FOXINDEX" > "$PACKAGES_NAME"
     rm "$PACKAGES_INFO"
     while IFS= read -r package; do
-        local version=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^V:" | awk -F ':' '{print $2}')
-        local desc=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^T:" | awk -F ':' '{print $2}')
+        version=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^V:" | awk -F ':' '{print $2}')
+        desc=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^T:" | awk -F ':' '{print $2}')
         echo "$package:$version | $desc" >> "$PACKAGES_INFO"
     done < "$PACKAGES_NAME"
 }
@@ -221,27 +262,34 @@ upgrade_a_package() {
             package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
             latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
             if (( $(echo "$latest_version > $now_version" | bc -l) )); then
-                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
-                    if [ -f "$ST" ]; then
-                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
-                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
-                            exit 1
+                read -p "[*] Do you need to update data? (y/N)" answer
+                case $answer in
+                    [Yy]) update;;
+                esac
+                if [ ! -e "$CACHE/$package.fox" ]; then
+                    if [ "$GITEE_PRIORITY" = "True" ];then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/main/Gitee/$package.fox"; then
+                            if [ -f "$ST" ]; then
+                                if ! wget -O "$CACHE/$package.fox" "$source_url/expand/Gitee/$package.fox"; then
+                                    echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee...${COLOR_DEFAULT}"
+                                    read -p "[*] Do you want to install fox file by default installation plan ? (y/N)" answer
+                                    case $answer in
+                                        [Yy]) get_from_github;;
+                                        *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                                    esac
+                                fi
+                            else
+                                echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee or need expand...${COLOR_DEFAULT}"
+                                read -p "[*] Do you want to try for install fox file by default installation plan ? (y/N)" answer
+                                case $answer in
+                                    [Yy]) get_from_github;;
+                                    *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                                esac
+                            fi
                         fi
-                    else
-                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
-                        exit 1
                     fi
-                fi
-                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-                    local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
                 else
-                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
-                        local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
-                    else
-                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
-                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
-                        fi
-                    fi
+                    get_from_github
                 fi
             else
                 echo -e "${COLOR_YELLOW}[*] Package '$package' already the latest version.${COLOR_DEFAULT}"
@@ -251,10 +299,10 @@ upgrade_a_package() {
             echo -e "${COLOR_YELLOW}[*] Package '$package' is not installed.${COLOR_DEFAULT}"
             exit 1
         fi
+        get_run "upgrade"
         update_run
-        check_code
-        local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-        local run=${run//\"\$BIN\"/$BIN}
+        run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        run=${run//\"\$BIN\"/$BIN}
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -274,33 +322,40 @@ upgrade_all_packages() {
             package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
             latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
             if (( $(echo "$latest_version > $now_version" | bc -l) )); then
-                if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
-                    if [ -f "$ST" ]; then
-                        if ! wget -O "$CACHE/$package.fox" "$source_url/expand/$package.fox"; then
-                            echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the latest source is no longer supported ...${COLOR_DEFAULT}"
-                            exit 1
+                read -p "[*] Do you need to update data? (y/N)" answer
+                case $answer in
+                    [Yy]) update;;
+                esac
+                if [ ! -e "$CACHE/$package.fox" ]; then
+                    if [ "$GITEE_PRIORITY" = "True" ];then
+                        if ! wget -O "$CACHE/$package.fox" "$source_url/main/Gitee/$package.fox"; then
+                            if [ -f "$ST" ]; then
+                                if ! wget -O "$CACHE/$package.fox" "$source_url/expand/Gitee/$package.fox"; then
+                                    echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee...${COLOR_DEFAULT}"
+                                    read -p "[*] Do you want to install fox file by default installation plan ? (y/N)" answer
+                                    case $answer in
+                                        [Yy]) get_from_github;;
+                                        *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                                    esac
+                                fi
+                            else
+                                echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package is no supported get from gitee or need expand...${COLOR_DEFAULT}"
+                                read -p "[*] Do you want to try for install fox file by default installation plan ? (y/N)" answer
+                                case $answer in
+                                    [Yy]) get_from_github;;
+                                    *) echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+                                esac
+                            fi
                         fi
                     else
-                        echo -e "${COLOR_RED}[-] FOX file is lost! It seems that the $package need expand ...${COLOR_DEFAULT}"
-                        exit 1
+                        get_from_github
                     fi
                 fi
-                if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-                    local run=$(grep -A 2 "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 2)
-                else
-                    if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
-                        local run=$(grep -A 2 "^$sys_name:$" "$CACHE/$package.fox" | tail -n 2)
-                    else
-                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
-                            local run=$(grep -A 1 "^$generic:$" "$CACHE/$package.fox" | tail -n 1)
-                        fi
-                    fi
-                fi
+                get_run "upgrade"
                 update_run
-                check_code
-                local run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-                local run=${run//\"\$BIN\"/$BIN}
-                if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
+                run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+                run=${run//\"\$BIN\"/$BIN}
+                if [ "$parameters_1" = "--debug" ] || [ "$package" = "--debug" ]; then
                     echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
                 fi
                 eval "$run"
@@ -334,19 +389,23 @@ update() {
 
 info() {
     if [ -s "$FOXINDEX/FOXINDEX" ]; then
-        grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | awk 'BEGIN{pkg="";ver="";arch="";info="";github=""} 
-            /^P:/{pkg=$2} 
-            /^V:/{ver=$2} 
-            /^L:/{lang=$2} 
-            /^T:/{info=$2} 
-            /^G:/{github=$2} 
-            END{
-                print "Package:", pkg; 
-                print "Version:", ver; 
-                print "Language:", lang; 
-                print "Introduction:", info;
-                print "GitHub:", (github=="" ? "Not available" : github)
-        }'
+        if grep -q "^P:$package$" "$FOXINDEX/FOXINDEX"; then
+            grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | awk 'BEGIN{pkg="";ver="";arch="";info="";github=""} 
+                /^P:/{pkg=$0} 
+                /^V:/{ver=$0} 
+                /^L:/{lang=$0} 
+                /^T:/{info=$0} 
+                /^G:/{github=$0} 
+                END{
+                    printf "Package: \033[32m%s\033[0m\n", substr(pkg, 3); 
+                    printf "Version: \033[32m%s\033[0m\n", substr(ver, 3); 
+                    printf "Language: \033[32m%s\033[0m\n", substr(lang, 3); 
+                    printf "Introduction: \033[32m%s\033[0m\n", substr(info, 3);
+                    printf "GitHub: \033[32m%s\033[0m\n", (github=="" ? "Not available" : substr(github, 3))
+            }'
+        else
+            echo -e "${COLOR_RED}[-] Package $package not found. Please check if the package name is correct.${COLOR_DEFAULT}"
+        fi
     else
         echo -e "${COLOR_RED}[-] FOXINDEX file loss. Try \"fox update\"${COLOR_DEFAULT}"
     fi
@@ -365,31 +424,32 @@ about() {
     logo
     echo -e "${COLOR_BLUE}[Gitee Project Main Address]${COLOR_DEFAULT}"
     echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei${COLOR_DEFAULT}"
+    echo ""
     echo -e "${COLOR_BLUE}[Gitee Project Repository Address]${COLOR_DEFAULT}"
     echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei-repository${COLOR_DEFAULT}"
+    echo ""
     echo -e "${COLOR_BLUE}[Maintor&Developer]${COLOR_DEFAULT}"
     echo -e "${COLOR_CYAN} > TangYuan${COLOR_DEFAULT}"
 }
 
 main() {
-    command=$1
-    package=$2
-    parameters_1=$3
-    parameters_2=$4
-    
     case "$command" in
         install)
             if [[ -z $package ]]; then
                 echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+                exit 1
             else
-                install_package "$package"
+                check_code
+                install_package
             fi
             ;;
         remove)
             if [[ -z $package ]]; then
                 echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+                exit 1
             else
-                remove_package "$package"
+                check_code
+                remove_package
             fi
             ;;
         list)
@@ -401,15 +461,14 @@ main() {
         search)
             if [[ -z $package ]]; then
                 echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+                exit 1
             else
-                search_package "$package"
+                check_code
+                search_package
             fi
             ;;
         upgrade)
-            read -p "[*] Do you need to update local data? (Y/n)" answer
-            if [ "$answer" != "n" ]; then
-                update
-            fi
+            check_code
             if [[ -z $package ]]; then
                 upgrade_all_packages
             else
@@ -425,8 +484,9 @@ main() {
         info)
             if [[ -z $package ]]; then
                 echo -e "${COLOR_YELLOW}[*] No package specified.${COLOR_DEFAULT}"
+                exit 1
             else
-                info "$package"
+                info
             fi
             ;;
         ABOUT)
@@ -464,19 +524,13 @@ else
         sys_name="termux"
     elif command -v "sw_vers"; then
         sys_name="darwin"
-    else
-        echo -e "${COLOR_YELLOW}[*] Current system is not supported.${COLOR_DEFAULT}"
-        exit 1
     fi
 fi
-#if [[ $BUILD == true ]]; then
-#    sys_name="build"
-#else
-#    if [[ $BUILD !== false ]]; then
-#        echo -e "${COLOR_RED}[-] The BUILD variable is incorrect, please check the config.list file.${COLOR_DEFAULT}"
-#        exit 1
-#    fi
-#fi
+if [[ ! -n "$sys_name" ]]; then
+    echo -e "${COLOR_RED}[-] Current system is not supported. ${COLOR_DEFAULT}"
+    exit 1
+fi
+
 sys_arch=$(uname -m)
 
 update_run() {
@@ -504,65 +558,29 @@ update_run() {
     eval "$run"
 }
 
-check_curl() {
-    if ! command -v curl &> /dev/null; then
-        echo -e "${COLOR_YELLOW}[*] Curl is not installed, start downloading and installing...${COLOR_DEFAULT}"
-        if [ "$sys_name" = "alpine" ]; then
-            apk add curl
-        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
-            apt install -y curl
-        elif [ "$sys_name" = "arch" ]; then
-            pacman -Sy curl
-        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
-            dnf install -y curl
-        elif [ "$sys_name" = "termux" ]; then
-            apt install -y curl
-        elif [ "$sys_name" = "darwin" ]; then
-            brew install -y curl
-        fi
-    fi
-}
-check_wget() {
-    if ! command -v wget &> /dev/null; then
-        echo -e "${COLOR_YELLOW}[*] Wget is not installed, start downloading and installing...${COLOR_DEFAULT}"
-        if [ "$sys_name" = "alpine" ]; then
-            apk add wget
-        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
-            apt install -y wget
-        elif [ "$sys_name" = "arch" ]; then
-            pacman -Sy wget
-        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
-            dnf install -y wget
-        elif [ "$sys_name" = "termux" ]; then
-            apt install -y wget
-        elif [ "$sys_name" = "darwin" ]; then
-            brew install -y wget
-        fi
-    fi
-}
-check_git() {
-    if ! command -v git &> /dev/null; then
-        echo -e "${COLOR_YELLOW}[*] Git is not installed, start downloading and installing...${COLOR_DEFAULT}"
-        if [ "$sys_name" = "alpine" ]; then
-            apk add git
-        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
-            apt install -y git
-        elif [ "$sys_name" = "arch" ]; then
-            pacman -Sy git
-        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
-            dnf install -y git
-        elif [ "$sys_name" = "termux" ]; then
-            apt install -y git
-        elif [ "$sys_name" = "darwin" ]; then
-            brew install -y git
-        fi
-    fi
-}
 check_code() {
     echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
-    check_curl
-    check_wget
-    check_git
+    if [ -f "$ST" ]; then
+        for cmd in wget curl git perl rust cargo perl python2 pip2 java node npm; do
+            if ! command -v $cmd; then
+                echo -e "${COLOR_RED}[!] $cmd command not found. Re-executing Setup_JiuWei try. ${COLOR_DEFAULT}"
+            fi
+        done
+    else
+        for cmd in wget curl git python3 pip3 ruby gem bc go; do
+            if ! command -v $cmd; then
+                echo -e "${COLOR_RED}[!] $cmd command not found. Re-executing Expand_JiuWei try. ${COLOR_DEFAULT}"
+            fi
+        done
+    fi
 }
+command=$1
+package=$2
+parameters_1=$3
+parameters_2=$4
+if [[ "$package" == "--"* ]]; then
+    echo -e "${COLOR_RED}[!] The package name is incorrect, please detect if the parameter is correct. ${COLOR_DEFAULT}"
+    exit 1
+fi
 
 main "$@"

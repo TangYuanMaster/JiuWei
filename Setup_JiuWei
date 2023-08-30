@@ -255,6 +255,12 @@ if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/get_latest_re
 fi
 chmod +x get_latest_releases
 
+if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/jiuwei"; then
+    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+    exit 1
+fi
+chmod +x jiuwei
+
 if [ ! -n "$TERMUX_VERSION" ]; then
     echo "export \"PATH=\$PATH:$MAIN_DIR/.bin\"" > /data/data/com.termux/files/usr/etc/profile.d/JiuWei.sh
     chmod +x /data/data/com.termux/files/usr/etc/profile.d/JiuWei.sh
