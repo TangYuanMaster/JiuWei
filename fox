@@ -159,8 +159,8 @@ install_package() {
             fi
             get_run "install"
             update_run
-            run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-            run=${run//\"\$BIN\"/$BIN}
+            run="${run//\$MAIN_DIR/$MAIN_DIR}"
+            run="${run//\$BIN/$BIN}"
             if [[ "$run" == *"github.com"* ]]; then
                 read -p "[*] Detected the need to retrieve files from GitHub. It is recommended to use a VPN. Press Enter to continue..."
             fi
@@ -212,8 +212,8 @@ remove_package() {
         fi
         get_run "remove"
         update_run
-        run=${run//\"\$BIN\"/$BIN}
-        run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
+        run="${run//\$MAIN_DIR/$MAIN_DIR}"
+        run="${run//\$BIN/$BIN}"
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -301,8 +301,8 @@ upgrade_a_package() {
         fi
         get_run "upgrade"
         update_run
-        run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-        run=${run//\"\$BIN\"/$BIN}
+        run="${run//\$MAIN_DIR/$MAIN_DIR}"
+        run="${run//\$BIN/$BIN}"
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -353,8 +353,8 @@ upgrade_all_packages() {
                 fi
                 get_run "upgrade"
                 update_run
-                run=${run//\"\$MAIN_DIR\"/$MAIN_DIR}
-                run=${run//\"\$BIN\"/$BIN}
+                run="${run//\$MAIN_DIR/$MAIN_DIR}"
+                run="${run//\$BIN/$BIN}"
                 if [ "$parameters_1" = "--debug" ] || [ "$package" = "--debug" ]; then
                     echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
                 fi
