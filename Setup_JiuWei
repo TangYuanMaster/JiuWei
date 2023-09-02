@@ -273,4 +273,7 @@ export PATH="$PATH:$MAIN_DIR/.bin"
 wget -O "Remove_JiuWei" https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei
 chmod +x Remove_JiuWei
 
+wget -O "Expand_JiuWei" https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei
+chmod +x Expand_JiuWei
+
 echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.\(つ≧▽≦\)つ${COLOR_DEFAULT}"

@@ -49,7 +49,7 @@ CACHE="$MAIN_DIR/$CACHE_FILE"
 FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
 ST="$MAIN_DIR/$ST_FILE"
-VERSION="0.5"
+VERSION="0.6"
 source "$MAIN_DIR/$CONFIG_FILE"
 source_url="${SOURCE%/}"
 
@@ -103,14 +103,14 @@ get_run() {
     elif [[ "$2" == "remove" ]]; then
         local num="3"
     fi
-    if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-        run=$(grep -A "$num" "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+    if grep -q "^$sys_name/$sys_arch:$" "$CACHE/$package.fox"; then
+        run=$(grep -A "$num" "^$sys_name/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
     else
         if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
             run=$(grep -A "$num" "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
         else
-            if grep -q "^$sys_name/$sys_arch:$" "$CACHE/$package.fox"; then
-                run=$(grep -A "$num" "^$sys_name/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+            if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+                run=$(grep -A "$num" "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
             else
                 if grep -q "^generic:$" "$CACHE/$package.fox"; then
                     run=$(grep -A "$num" "^generic:$" "$CACHE/$package.fox" | tail -n 1)
@@ -161,6 +161,9 @@ install_package() {
             update_run
             run="${run//\$MAIN_DIR/$MAIN_DIR}"
             run="${run//\$BIN/$BIN}"
+            run="${run//\$PACKAGE_INSTALL/$PACKAGE_INSTALL}"
+            run="${run//\$PACKAGE_UPGRADE/$PACKAGE_UPGRADE}"
+            run="${run//\$PACKAGE_REMOVE/$PACKAGE_REMOVE}"
             if [[ "$run" == *"github.com"* ]]; then
                 read -p "[*] Detected the need to retrieve files from GitHub. It is recommended to use a VPN. Press Enter to continue..."
             fi
@@ -214,6 +217,9 @@ remove_package() {
         update_run
         run="${run//\$MAIN_DIR/$MAIN_DIR}"
         run="${run//\$BIN/$BIN}"
+        run="${run//\$PACKAGE_INSTALL/$PACKAGE_INSTALL}"
+        run="${run//\$PACKAGE_UPGRADE/$PACKAGE_UPGRADE}"
+        run="${run//\$PACKAGE_REMOVE/$PACKAGE_REMOVE}"
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -303,6 +309,9 @@ upgrade_a_package() {
         update_run
         run="${run//\$MAIN_DIR/$MAIN_DIR}"
         run="${run//\$BIN/$BIN}"
+        run="${run//\$PACKAGE_INSTALL/$PACKAGE_INSTALL}"
+        run="${run//\$PACKAGE_UPGRADE/$PACKAGE_UPGRADE}"
+        run="${run//\$PACKAGE_REMOVE/$PACKAGE_REMOVE}"
         if [ "$parameters_1" = "--debug" ] || [ "$parameters_2" = "--debug" ]; then
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
@@ -355,6 +364,9 @@ upgrade_all_packages() {
                 update_run
                 run="${run//\$MAIN_DIR/$MAIN_DIR}"
                 run="${run//\$BIN/$BIN}"
+                run="${run//\$PACKAGE_INSTALL/$PACKAGE_INSTALL}"
+                run="${run//\$PACKAGE_UPGRADE/$PACKAGE_UPGRADE}"
+                run="${run//\$PACKAGE_REMOVE/$PACKAGE_REMOVE}"
                 if [ "$parameters_1" = "--debug" ] || [ "$package" = "--debug" ]; then
                     echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
                 fi
@@ -506,24 +518,51 @@ sys_info=$(uname -a)
 if [ -f "/etc/os-release" ]; then
     if grep -qi 'ID=*alpine*' /etc/os-release; then
         sys_name="alpine"
+        PACKAGE_INSTALL="apk add"
+        PACKAGE_UPGRADE="apk upgrade"
+        PACKAGE_REMOVE="apk del"
     elif grep -qi 'ID=*debian*' /etc/os-release; then
         sys_name="debian"
+        PACKAGE_INSTALL="apt install -y"
+        PACKAGE_UPGRADE="apt install --only-upgrade"
+        PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*ubuntu*' /etc/os-release; then
         sys_name="ubuntu"
+        PACKAGE_INSTALL="apt install -y"
+        PACKAGE_UPGRADE="apt install --only-upgrade"
+        PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*kali*' /etc/os-release; then
         sys_name="kali"
+        PACKAGE_INSTALL="apt install -y"
+        PACKAGE_UPGRADE="apt install --only-upgrade"
+        PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*arch*' /etc/os-release; then
         sys_name="arch"
+        PACKAGE_INSTALL="pacman -S"
+        PACKAGE_UPGRADE="pacman -Su"
+        PACKAGE_REMOVE="pacman -Rns"
     elif grep -qi 'ID=*centos*' /etc/os-release; then
         sys_name="centos"
+        PACKAGE_INSTALL="yum install -y"
+        PACKAGE_UPGRADE="yum update"
+        PACKAGE_REMOVE="yum remove"
     elif grep -qi 'ID=*rhel*' /etc/os-release; then
         sys_name="redhat"
+        PACKAGE_INSTALL="yum install -y"
+        PACKAGE_UPGRADE="yum update"
+        PACKAGE_REMOVE="yum remove"
     fi
 else
     if [ -n "$TERMUX_VERSION" ]; then
         sys_name="termux"
+        PACKAGE_INSTALL="pkg install -y"
+        PACKAGE_UPGRADE="pkg upgrade -y"
+        PACKAGE_REMOVE="pkg uninstall -y"
     elif command -v "sw_vers"; then
         sys_name="darwin"
+        PACKAGE_INSTALL="brew install -y"
+        PACKAGE_UPGRADE="brew upgrade -y"
+        PACKAGE_REMOVE="brew uninstall"
     fi
 fi
 if [[ ! -n "$sys_name" ]]; then
