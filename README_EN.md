@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h4 align="center">A highly customized and domestic network security package management integration project.</h4>
+<h3 align="center">A highly customized and domestic network security package management integration project.</h4>
 
 <p align="center">
     <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
@@ -20,7 +20,7 @@
   </a>
 </p>
 
-<p align="center" dir="auto">
+<h4 align="center" dir="auto">
   English | <a href="https://gitee.com/CNTangyuan/JiuWei/blob/master/README.md">中文</a>
 </p>
 

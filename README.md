@@ -8,7 +8,7 @@
 
 <h3 align="center">一款高自定义化、国内化的类网安包管理集成项目.</h4>
 
-<h3 align="center">
+<p align="center">
     <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
       <img src='https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark' alt='star'></img></a>
     <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
