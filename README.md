@@ -6,7 +6,7 @@
   <br>
 </h1>
 
-<h2 align="center">一款高自定义化、国内化的类网安包管理集成项目.</h4>
+<h3 align="center">一款高自定义化、国内化的类网安包管理集成项目.</h4>
 
 <p align="center">
     <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
@@ -20,7 +20,7 @@
   </a>
 </p>
 
-<h2 align="center" dir="auto">
+<h3 align="center" dir="auto">
   中文 | <a href="https://gitee.com/CNTangyuan/JiuWei/blob/master/README_EN.md">English</a>
 </p>
 
