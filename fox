@@ -571,6 +571,13 @@ if [[ ! -n "$sys_name" ]]; then
 fi
 
 sys_arch=$(uname -m)
+if [[ $sys_arch == x86_64 ]]; then
+    sys_arch="amd64"
+elif [[ $sys_arch == aarch64 ]]; then
+    sys_arch="arm64"
+elif [[ $sys_arch == i*86 ]]; then
+    sys_arch="386"
+fi
 
 update_run() {
     if [ "$parameters_1" = "--no-update" ] || [ "$parameters_2" = "--no-update" ]; then
