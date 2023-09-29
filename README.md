@@ -20,7 +20,7 @@
   </a>
 </p>
 
-<h3 align="center" dir="auto">
+<h4 align="center" dir="auto">
   中文 | <a href="https://gitee.com/CNTangyuan/JiuWei/blob/master/README_EN.md">English</a>
 </p>
 
