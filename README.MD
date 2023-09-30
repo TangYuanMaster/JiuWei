@@ -17,7 +17,7 @@
   </a>
 </p>
 
-<h3 align="center" dir="auto">[ 项目不稳定… ]</p>
+<h3 align="center" dir="auto">〔项目不稳定…〕</p>
 
 <h4 align="center" dir="auto">
   中文 | <a href="https://gitee.com/TangYuanMaster/JiuWei/blob/master/README_EN.MD">English</a>
@@ -112,9 +112,9 @@ Remove_JiuWei
 ## 📌 未来
 
 - [ ] DOCKER-MODE模式支持
-- [*] 全工具批量更新
-- [*] 从国内Gitee镜像项目克隆文件
-- [*] .fox文件说明有项目维护状态以选择性更新项目
+- [x] 全工具批量更新
+- [x] 从国内Gitee镜像项目克隆文件
+- [x] .fox文件说明有项目维护状态以选择性更新项目
 
 
 ## 🚀 版本迭代记录

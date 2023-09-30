@@ -17,7 +17,7 @@
   </a>
 </p>
 
-<h3 align="center" dir="auto">[ UNSTABLE… ]</p>
+<h3 align="center" dir="auto">〔UNSTABLE…〕</p>
 
 <h4 align="center" dir="auto">
   English | <a href="https://gitee.com/TangYuanMaster/JiuWei/blob/master/README.MD">中文</a>
@@ -111,9 +111,9 @@ Remove_JiuWei
 ## 📌 Future Plans
 
 - [ ] DOCKER-MODE support
-- [ ] Automatic batch update for all tools without specifying
-- [ ] Mark key tools for quick selection and use
-- [ ] Keyword tagging of tool introductions for easy targeted tool search
+- [x] Batch update of all tools
+- [x] Clone files from domestic Gitee mirror project
+- [x] .fox file instructions have project maintenance status for selective project updates
 
 
 ## 🚀 Version Iteration Records
