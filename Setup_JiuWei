@@ -22,7 +22,7 @@ interrupt_handler() {
 trap interrupt_handler SIGINT
 check_root() {
     if [[ $EUID -ne 0 ]]; then
-        echo -e "${COLOR_RED}[ERROR] This command must be run as root!${COLOR_DEFAULT}"
+        echo -e "${COLOR_RED}[-] This command must be run as root!${COLOR_DEFAULT}"
         exit 1
     fi
 }
@@ -256,13 +256,13 @@ check_code
 
 mkdir -p "$MAIN_DIR" "$BIN" "$CACHE" "$FOXINDEX"
 if ! wget -O "$CONFIG" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/config.list"; then
-    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+    echo -e "${COLOR_RED}[-] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 touch "$INED"
 
-if ! wget -O "$MAIN_DIR/CHANGE.log" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/CHANGE.log"; then
-    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+if ! wget -O "$MAIN_DIR/CHANGE.log" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/CHANGE.MD"; then
+    echo -e "${COLOR_RED}[-] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 
@@ -270,19 +270,19 @@ cd "$BIN"
 
 # 使用wget命令从指定URL下载文件
 if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/fox"; then
-    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+    echo -e "${COLOR_RED}[-] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x fox
 
-if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/get_latest_releases"; then
-    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+if ! wget -O "get_latest_releases" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/get_latest_releases"; then
+    echo -e "${COLOR_RED}[-] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x get_latest_releases
 
-if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/jiuwei"; then
-    echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
+if ! wget -O "jiuwei" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/jiuwei"; then
+    echo -e "${COLOR_RED}[-] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x jiuwei

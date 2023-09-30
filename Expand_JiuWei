@@ -22,7 +22,7 @@ interrupt_handler() {
 trap interrupt_handler SIGINT
 check_root() {
     if [[ $EUID -ne 0 ]]; then
-        echo -e "${COLOR_RED}[ERROR] This command must be run as root!${COLOR_DEFAULT}"
+        echo -e "${COLOR_RED}[-] This command must be run as root!${COLOR_DEFAULT}"
         exit 1
     fi
 }

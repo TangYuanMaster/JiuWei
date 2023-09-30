@@ -297,7 +297,9 @@ list_packages() {
 #
 generate_package_info() {
     awk -F ':' '/^P:/{print $2}' "$FOXINDEX/FOXINDEX" > "$PACKAGES_NAME"
-    rm "$PACKAGES_INFO"
+    if [ -s "$PACKAGES_INFO" ]; then
+        rm "$PACKAGES_INFO"
+    fi
     while IFS= read -r package; do
         version=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^V:" | awk -F ':' '{print $2}')
         desc=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | grep "^T:" | awk -F ':' '{print $2}')
