@@ -2,17 +2,14 @@
   <br>
   <img src="img/logo.jpg" alt="logo">
   <br>
-  JiuWei | <a href="https://gitee.com/CNTangyuan/JiuWei-repository">JiuWei-repository</a>
+  JiuWei | <a href="https://gitee.com/TangYuanMaster/JiuWei-repository">JiuWei-repository</a>
   <br>
 </h1>
 
-<h3 align="center">A highly customized and domestic network security package management integration project.</h4>
+<h3 align="center">🔥A highly customized and domestic network security package management integration project.</h4>
 
 <p align="center">
-    <a href='https://gitee.com/CNTangyuan/JiuWei/stargazers'>
-      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/star.svg?theme=dark' alt='star'></img></a>
-    <a href='https://gitee.com/CNTangyuan/JiuWei/members'>
-      <img src='https://gitee.com/CNTangyuan/JiuWei/badge/fork.svg?theme=dark' alt='fork'></img></a>
+ ​ <img​ ​src="​https://img.shields.io/badge/NetHunter-✔-red.svg?style=plastic"​>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
       <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
   <a href="https://www.gnu.org/software/bash/">
@@ -20,8 +17,10 @@
   </a>
 </p>
 
+<h3 align="center" dir="auto">[ UNSTABLE… ]</p>
+
 <h4 align="center" dir="auto">
-  English | <a href="https://gitee.com/CNTangyuan/JiuWei/blob/master/README.md">中文</a>
+  English | <a href="https://gitee.com/TangYuanMaster/JiuWei/blob/master/README.MD">中文</a>
 </p>
 
 ## ⚠️ Disclaimer
@@ -87,7 +86,7 @@
 Initialize JiuWei-nano environment status (・∀・)
 
 ```
-wget "https://gitee.com/CNTangyuan/JiuWei/raw/master/Setup_JiuWei"
+wget "https://gitee.com/TangYuanMaster/JiuWei/raw/master/Setup_JiuWei"
 chmod +x Setup_JiuWei
 ./Setup_JiuWei
 ```
@@ -119,7 +118,7 @@ Remove_JiuWei
 
 ## 🚀 Version Iteration Records
 
-Please referto [CHANGELOG](https://gitee.com/CNTangyuan/JiuWei/blob/master/CHANGE.log)
+Please referto [CHANGELOG](https://gitee.com/TangYuanMaster/JiuWei/blob/master/CHANGE.MD)
 
 
 ## 👀 References
@@ -131,7 +130,7 @@ Many thanks to all the package management tools for their ideas and inspiration 
 
 This project is licensed under GPL-3.0.
 
-For details, please refer to [LICENSE](https://gitee.com/CNTangyuan/JiuWei/blob/master/LICENSE)
+For details, please refer to [LICENSE](https://gitee.com/TangYuanMaster/JiuWei/blob/master/LICENSE)
 
 
 ## 💡 Contributions & Contact
@@ -139,6 +138,6 @@ For details, please refer to [LICENSE](https://gitee.com/CNTangyuan/JiuWei/blob/
 You can inform me about new tools and their introductions, write tool FOX files for my project, improve tool introductions, or provide suggestions, etc.
 Hope that all experts will contribute enthusiastically ((･ω･)つ⊂(･ω･))
 
-1. [Submit Gitee iSSUES](https://gitee.com/CNTangyuan/JiuWei/issues)
+1. [Submit Gitee iSSUES](https://gitee.com/TangYuanMaster/JiuWei/issues)
 2. [CSDN-TY Tangyuan](https://blog.csdn.net/qq_57851190)
 3. [QQ Group - TYXC](http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=OVsNn-8iWP5HTTARzTNzfOcgCngXp3gH&authKey=03ZWzlYVvCH6Cpq2Pa7nIEqOFiXw2svp96C896bcZc4Rpg%2FTNk2c2F8asJ4U7tiK&noverify=0&group_code=751386568)

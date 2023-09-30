@@ -1,6 +1,14 @@
 #!/bin/bash
+#
+# @name:    jiuwei
+# @repo:    https://gitee.com/TangYuanMaster/JiuWei
+# @author:  TangYuanMaster
+# @license: See the file 'LICENSE.txt'
+#
+
 set -e
-# 设置颜色变量
+
+# 初始化颜色变量
 COLOR_DEFAULT="\e[0m"
 COLOR_RED="\e[31m"
 COLOR_GREEN="\e[32m"
@@ -36,12 +44,12 @@ echo -e "${COLOR_RED}                                           ${COLOR_DEFAULT}
 echo ""
 
 MAIN_DIR="$HOME/JiuWei"
-HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
-HBI="$MAIN_DIR/$HBI_FILE"
+INED_FILE=".installed" #记录所有已安装的包名（文本文件）
+INED="$MAIN_DIR/$INED_FILE"
 
 num=0
-if [[ -s "$HBI" ]]; then
-    count=$(grep -c "" "$HBI" )
+if [[ -s "$INED" ]]; then
+    count=$(grep -c "" "$INED" )
 else
     count=0
 fi

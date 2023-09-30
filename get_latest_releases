@@ -1,6 +1,14 @@
 #!/bin/bash
+#
+# @name:    get_latest_releases
+# @repo:    https://gitee.com/TangYuanMaster/JiuWei
+# @author:  TangYuanMaster
+# @license: See the file 'LICENSE.txt'
+#
+
 set -e
-# 设置颜色变量
+
+# 初始化颜色变量
 COLOR_DEFAULT="\e[0m"
 COLOR_RED="\e[31m"
 COLOR_GREEN="\e[32m"
@@ -25,7 +33,7 @@ if [ $# -lt 2 ]; then
 fi
 
 MAIN_DIR="$HOME/JiuWei"
-HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+INED_FILE=".installed" #记录所有已安装的包名（文本文件）
 PACKAGES_INFO=".packages_info" #记录所有的包信息,方便search（文本文件）
 PACKAGES_NAME=".packages_name" #记录所有的包名称,方便install（文本文件）
 CONFIG_FILE="config.list" #配置文件（文本文件）
@@ -35,7 +43,7 @@ BIN_FILE=".bin" #快捷命令存放（文件夹）
 ST_FILE=".status" #JiuWei状态检测（文本文件）
 DEFAULT_ANSWER=Y
 
-HBI="$MAIN_DIR/$HBI_FILE"
+INED="$MAIN_DIR/$INED_FILE"
 PACKAGES_INFO="$MAIN_DIR/$PACKAGES_INFO"
 PACKAGES_NAME="$MAIN_DIR/$PACKAGES_NAME"
 CACHE="$MAIN_DIR/$CACHE_FILE"
@@ -43,26 +51,56 @@ FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
 BIN="$MAIN_DIR/$BIN_FILE"
 ST="$MAIN_DIR/$ST_FILE"
 
-#get_latest_releases "chaitin/xray" "arm64" "xray" "xray"
+#get_latest_releases -z "项目地址" "架构关键词(用于下载对应架构文件)" "解压到的文件夹"
+#get_latest_releases -tg "项目地址" "架构关键词(用于下载对应架构文件)" "解压到的文件夹"
+#get_latest_releases -w "项目地址" "文件关键词(用于下载对应文件)"
 
-github_repo=$1
-arch=$2
+command=$1
+github_repo=$2
 keyword=$3
 output_filename=$4
 
-latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
-download_urls=$(echo "$latest_release" | grep -oE '"browser_download_url": "[^"]+"' | cut -d'"' -f4)
-for url in $download_urls; do
-    if [[ $url == *"$arch"* ]]; then
-        target_file=${url##*/}
-        wget "$url" -O "$CACHE/$target_file"
-    fi
-done
-cd $CACHE
-if [[ $target_file == *.tar.gz ]]; then
-    tar -zxvf "$target_file" --to-command="grep -q '$keyword' && cat > $BIN/$output_filename"
-elif [[ $target_file == *.zip ]]; then
-    unzip -p "$target_file" | grep -q "$keyword" > "$BIN/$output_filename"
-else
-    echo "[-] 不支持的文件格式"
-fi
+case "$command" in
+    -z)
+        latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
+        download_urls=$(echo "$latest_release" | grep -oE '"browser_download_url": "[^"]+"' | cut -d'"' -f4)
+        for url in $download_urls; do
+            if [[ $url == *"$keyword"* ]]; then
+                target_file=${url##*/}
+                echo -e "${COLOR_GREEN}[+] Download $target_file. ${COLOR_DEFAULT}"
+                wget "$url" -O "$CACHE/$target_file"
+            fi
+        done
+        cd $CACHE
+        unzip -o -d "$MAIN_DIR/$output_filename" "$target_file"
+        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/$target_file. ${COLOR_DEFAULT}"
+        ;;
+    -tg)
+        latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
+        download_urls=$(echo "$latest_release" | grep -oE '"browser_download_url": "[^"]+"' | cut -d'"' -f4)
+        for url in $download_urls; do
+            if [[ $url == *"$keyword"* ]]; then
+                target_file=${url##*/}
+                echo -e "${COLOR_GREEN}[+] Download $target_file. ${COLOR_DEFAULT}"
+                wget "$url" -O "$CACHE/$target_file"
+            fi
+        done
+        cd $CACHE
+        tar -zxvf "$target_file" -C "$MAIN_DIR/$output_filename"
+        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/$target_file. ${COLOR_DEFAULT}"
+        ;;
+    -w)
+        latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
+        download_urls=$(echo "$latest_release" | grep -oE '"browser_download_url": "[^"]+"' | cut -d'"' -f4)
+        for url in $download_urls; do
+            if [[ $url == *"$keyword"* ]]; then
+                target_file=${url##*/}
+                echo -e "${COLOR_GREEN}[+] Download $target_file. ${COLOR_DEFAULT}"
+                wget "$url" -O "$CACHE/$target_file"
+            fi
+        done
+        ;;
+    *)
+        echo -e "${COLOR_YELLOW}[*] Unknown command: $command.${COLOR_DEFAULT}"
+        ;;
+esac

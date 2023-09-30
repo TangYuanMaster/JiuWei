@@ -1,4 +1,9 @@
+# @name:    config.list - The Config File For FOX
+# @repo:    https://gitee.com/TangYuanMaster/JiuWei
+
 #Jiuwei repository
-SOURCE="https://gitee.com/CNTangyuan/JiuWei-repository/raw/master"
-#Gitee Priority Mode
-GITEE_PRIORITY="True"
+SOURCE="https://gitee.com/TangYuanMaster/JiuWei-repository/raw/master"
+#Gitee Priority Mode {Unfinished}
+GITEE_PRIORITY="False"
+#LOGO Print
+LOGO_PRINT="True"

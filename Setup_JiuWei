@@ -1,4 +1,11 @@
 #!/bin/bash
+#
+# @name:    Setup_JiuWei
+# @repo:    https://gitee.com/TangYuanMaster/JiuWei
+# @author:  TangYuanMaster
+# @license: See the file 'LICENSE.txt'
+#
+
 COLOR_DEFAULT="\e[0m"
 COLOR_RED="\e[31m"
 COLOR_GREEN="\e[32m"
@@ -29,14 +36,14 @@ if [ ! -n "$HOME" ]; then
 fi
 
 MAIN_DIR="$HOME/JiuWei"
-HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+INED_FILE=".installed" #记录所有已安装的包名（文本文件）
 CONFIG_FILE="config.list" #放置源URL（文本文件）
 FOXINDEX_FILE=".foxindex" #放置FOXINDEX解压后产生的文件（文件夹）
 CACHE_FILE=".cache" #放置从源中下载的安装包（文件夹）
 BIN_FILE=".bin" #快捷命令存放（文件夹）
 ST_FILE=".expand" #拓展状态文件
 
-HBI="$MAIN_DIR/$HBI_FILE"
+INED="$MAIN_DIR/$INED_FILE"
 CONFIG="$MAIN_DIR/$CONFIG_FILE"
 CACHE="$MAIN_DIR/$CACHE_FILE"
 FOXINDEX="$MAIN_DIR/$FOXINDEX_FILE"
@@ -215,12 +222,31 @@ check_bc() {
         fi
     fi
 }
+check_make() {
+    if ! command -v make; then
+        echo -e "${COLOR_YELLOW}[*] Make is not installed, start downloading and installing...${COLOR_DEFAULT}"
+        if [ "$sys_name" = "alpine" ]; then
+            apk add make
+        elif [ "$sys_name" = "debian" ] || [ "$sys_name" = "ubuntu" ] || [ "$sys_name" = "kali" ]; then
+            apt install -y make
+        elif [ "$sys_name" = "arch" ]; then
+            pacman -Sy make
+        elif [ "$sys_name" = "centos" ] || [ "$sys_name" = "redhat" ]; then
+            yum install -y make
+        elif [ "$sys_name" = "termux" ]; then
+            apt install -y make
+        elif [ "$sys_name" = "darwin" ]; then
+            brew install -y make
+        fi
+    fi
+}
 check_code() {
     echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
     check_curl
     check_wget
     check_git
     check_python3_pip3
+    check_make
     check_go
     check_ruby_gem
     check_bc
@@ -229,13 +255,13 @@ update_run
 check_code
 
 mkdir -p "$MAIN_DIR" "$BIN" "$CACHE" "$FOXINDEX"
-if ! wget -O "$CONFIG" "https://gitee.com/CNTangyuan/JiuWei/raw/master/config.list"; then
+if ! wget -O "$CONFIG" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/config.list"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
-touch "$HBI"
+touch "$INED"
 
-if ! wget -O "$MAIN_DIR/CHANGE.log" "https://gitee.com/CNTangyuan/JiuWei/raw/master/CHANGE.log"; then
+if ! wget -O "$MAIN_DIR/CHANGE.log" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/CHANGE.log"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
@@ -243,19 +269,19 @@ fi
 cd "$BIN"
 
 # 使用wget命令从指定URL下载文件
-if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/fox"; then
+if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/fox"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x fox
 
-if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/get_latest_releases"; then
+if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/get_latest_releases"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
 chmod +x get_latest_releases
 
-if ! wget -O "fox" "https://gitee.com/CNTangyuan/JiuWei/raw/master/jiuwei"; then
+if ! wget -O "fox" "https://gitee.com/TangYuanMaster/JiuWei/raw/master/jiuwei"; then
     echo -e "${COLOR_RED}[ERROR] An error occurred while downloading...Exit.${COLOR_DEFAULT}"
     exit 1
 fi
@@ -270,10 +296,11 @@ else
 fi
 export PATH="$PATH:$MAIN_DIR/.bin"
 
-wget -O "Remove_JiuWei" https://gitee.com/CNTangyuan/JiuWei/raw/master/Remove_JiuWei
+wget -O "Remove_JiuWei" https://gitee.com/TangYuanMaster/JiuWei/raw/master/Remove_JiuWei
 chmod +x Remove_JiuWei
 
-wget -O "Expand_JiuWei" https://gitee.com/CNTangyuan/JiuWei/raw/master/Expand_JiuWei
+wget -O "Expand_JiuWei" https://gitee.com/TangYuanMaster/JiuWei/raw/master/Expand_JiuWei
 chmod +x Expand_JiuWei
+
 
 echo -e "${COLOR_GREEN}[INFO] Welcome to use JiuWei ~ Fox want to hug you.\(つ≧▽≦\)つ${COLOR_DEFAULT}"

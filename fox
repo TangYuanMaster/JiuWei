@@ -1,6 +1,14 @@
 #!/bin/bash
+#
+# @name:    fox - JiuWei Packages Management
+# @repo:    https://gitee.com/TangYuanMaster/JiuWei
+# @author:  TangYuanMaster
+# @license: See the file 'LICENSE.txt'
+#
+
 set -e
-# 设置颜色变量
+
+# 初始化颜色
 COLOR_DEFAULT="\e[0m"
 COLOR_RED="\e[31m"
 COLOR_GREEN="\e[32m"
@@ -9,6 +17,7 @@ COLOR_BLUE="\e[34m"
 COLOR_PURPLE="\e[35m"
 COLOR_CYAN="\e[36m"
 
+#进程意外终止处理函数
 interrupt_handler() {
     read -p "[*] Received Ctrl+C, Do you want to continue running the script? (Y/n)" answer
     case $answer in
@@ -17,6 +26,8 @@ interrupt_handler() {
     esac
 }
 trap interrupt_handler SIGINT
+
+#ROOT环境检测 /Termux无需
 check_root() {
     if [[ $EUID -ne 0 ]]; then
         echo -e "${COLOR_RED}[-] This command must be run as root!${COLOR_DEFAULT}"
@@ -27,12 +38,14 @@ if [ ! -n "$TERMUX_VERSION" ]; then
     check_root
 fi
 
+#检查变量$HOME
 if [ ! -n "$HOME" ]; then
-    echo -e "${COLOR_RED}[-]\$HOME variables do not exist, please set the variable \$HOME and try again.${COLOR_DEFAULT}"
+    echo -e "${COLOR_RED}[-] \$HOME variables do not exist, please set the variable \$HOME and try again.${COLOR_DEFAULT}"
 fi
 
+#声明变量
 MAIN_DIR="$HOME/JiuWei"
-HBI_FILE=".have_been_install" #记录所有已安装的包名（文本文件）
+INED_FILE=".installed" #记录所有已安装的包名（文本文件）
 PACKAGES_INFO=".packages_info" #记录所有的包信息,方便search（文本文件）
 PACKAGES_NAME=".packages_name" #记录所有的包名称,方便install（文本文件）
 CONFIG_FILE="config.list" #配置文件（文本文件）
@@ -42,7 +55,7 @@ BIN_FILE=".bin" #快捷命令存放（文件夹）
 ST_FILE=".expand" #拓展状态文件
 DEFAULT_ANSWER=Y
 
-HBI="$MAIN_DIR/$HBI_FILE"
+INED="$MAIN_DIR/$INED_FILE"
 PACKAGES_INFO="$MAIN_DIR/$PACKAGES_INFO"
 PACKAGES_NAME="$MAIN_DIR/$PACKAGES_NAME"
 CACHE="$MAIN_DIR/$CACHE_FILE"
@@ -53,19 +66,22 @@ VERSION="0.6"
 source "$MAIN_DIR/$CONFIG_FILE"
 source_url="${SOURCE%/}"
 
+#LOGO输出函数
 logo() {
-    echo -e "${COLOR_GREEN}          ______ _______   __"
-    echo -e "${COLOR_GREEN}          |  ___|  _  \ \ / /"
-    echo -e "${COLOR_GREEN}          | |_  | | | |\ V / "
-    echo -e "${COLOR_GREEN}          |  _| | | | |/   \ "
-    echo -e "${COLOR_GREEN}          | |   \ \_/ / /^\ \\"
-    echo -e "${COLOR_GREEN}          \_|    \___/\/   \/"
-    echo -e "${COLOR_BLUE}          ～ Version : $VERSION ～"
-    echo -e "${COLOR_PURPLE}       JiuWei packages management${COLOR_DEFAULT}"
+    if [ "$LOGO_PRINT" = "True" ];then
+        echo -e "${COLOR_GREEN}          ______ _______   __"
+        echo -e "${COLOR_GREEN}          |  ___|  _  \ \ / /"
+        echo -e "${COLOR_GREEN}          | |_  | | | |\ V / "
+        echo -e "${COLOR_GREEN}          |  _| | | | |/   \ "
+        echo -e "${COLOR_GREEN}          | |   \ \_/ / /^\ \\"
+        echo -e "${COLOR_GREEN}          \_|    \___/\/   \/"
+        echo -e "${COLOR_BLUE}          ～ Version : $VERSION ～"
+        echo -e "${COLOR_PURPLE}       JiuWei packages management${COLOR_DEFAULT}"
+    fi
 }
 
+#HELP输出函数
 usage() {
-    logo
     echo -e "Usage: ${COLOR_YELLOW}fox [command] [package] [parameter]${COLOR_DEFAULT}"
     echo -e "${COLOR_GREEN}Commands:${COLOR_DEFAULT}"
     echo -e "  ${COLOR_CYAN}install${COLOR_DEFAULT}      - Install a package"
@@ -81,6 +97,7 @@ usage() {
     echo -e "  ${COLOR_CYAN}--debug${COLOR_DEFAULT}      - Display execution process"
 }
 
+#获取需要GitHub克隆的fox方案
 get_from_github() {
     if ! wget -O "$CACHE/$package.fox" "$source_url/main/$package.fox"; then
         if [ -f "$ST" ]; then
@@ -95,38 +112,72 @@ get_from_github() {
     fi
 }
 
+#对fox方案进行读取
 get_run() {
     if [[ "$1" == "install" ]]; then
         local num="1"
     elif [[ "$2" == "upgrade" ]]; then
+        package_info=$(grep -A 5 "^P:$package$" "$FOXINDEX/FOXINDEX")
+        status=$(echo "$package_info" | grep "^S:" | awk -F: '{print $2}' | tr -d '[:space:]')
+        if [[ "$status" == "No" ]]; then
+            echo -e "${COLOR_RED}[-] The project $package has stopped maintenance, stop updating !${COLOR_DEFAULT}"
+            echo -e "${COLOR_BLUE}[*] If there is a false positive, please feed back me (see \"fox ABOUT\") .${COLOR_DEFAULT}"
+            exit 1
+        elif [[ "$status" == "Unkown" ]]; then
+            read -p "[*] The project is suspected that it has stopped maintenance. Do you continue to execute updates? (Y/n)" answer
+            case $answer in
+                [Nn]) echo -e "${COLOR_BLUE}[*] If there is a false positive, please feed back me (see \"fox ABOUT\") .${COLOR_DEFAULT}" && echo -e "${COLOR_RED}[-] Exit...${COLOR_DEFAULT}" && exit 1;;
+            esac
+            echo -e "${COLOR_BLUE}[*] If there is a false positive, please feed back me (see \"fox ABOUT\") .${COLOR_DEFAULT}"
+        fi
         local num="2"
     elif [[ "$2" == "remove" ]]; then
         local num="3"
     fi
-    if grep -q "^$sys_name/$sys_arch:$" "$CACHE/$package.fox"; then
-        run=$(grep -A "$num" "^$sys_name/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
-    else
-        if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
-            run=$(grep -A "$num" "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
+    if grep -q "^R:$" "$CACHE/$package.fox"; then
+        requirements=$(grep -A "$num" "^R:$" "$CACHE/$package.fox" | tail -n 1)
+        IFS=',' read -ra req_array <<< "$requirements"
+        for req in "${req_array[@]}"; do
+            if ! grep -q "^${req}" "$INED"; then
+                echo -e "${COLOR_BLUE}[*] Package '$req' has not been installed.Try \"fox install $req\"${COLOR_DEFAULT}"
+                exit_code="1"
+            fi
+        done
+        if [ "$req" -eq 1 ]; then
+            exit 1
+        fi
+        exit_code="0"
+    elif [ "$exit_code" -eq 0 ] || ! grep -q "^R:$" "$CACHE/$package.fox"; then
+        if grep -q "^$sys_name/$sys_arch:$" "$CACHE/$package.fox"; then
+            run=$(grep -A "$num" "^$sys_name/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
         else
-            if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
-                run=$(grep -A "$num" "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+            if grep -q "^$SYSTEM_CATEGORY/$sys_arch:$" "$CACHE/$package.fox"; then
+                run=$(grep -A "$num" "^$SYSTEM_CATEGORY/$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
             else
-                if grep -q "^generic:$" "$CACHE/$package.fox"; then
-                    run=$(grep -A "$num" "^generic:$" "$CACHE/$package.fox" | tail -n 1)
+                if grep -q "^$sys_name:$" "$CACHE/$package.fox"; then
+                    run=$(grep -A "$num" "^$sys_name:$" "$CACHE/$package.fox" | tail -n 1)
                 else
-                    echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
-                    exit 1
+                    if grep -q "^$sys_arch:$" "$CACHE/$package.fox"; then
+                        run=$(grep -A "$num" "^$sys_arch:$" "$CACHE/$package.fox" | tail -n 1)
+                    else
+                        if grep -q "^generic:$" "$CACHE/$package.fox"; then
+                            run=$(grep -A "$num" "^generic:$" "$CACHE/$package.fox" | tail -n 1)
+                        else
+                            echo -e "${COLOR_RED}[-] The tool does not support the current system architecture.${COLOR_DEFAULT}"
+                            exit 1
+                        fi
+                    fi
                 fi
             fi
         fi
     fi
 }
 
+#INSTALL部分函数
 install_package() {
     if [ -s "$PACKAGES_NAME" ]; then
         pattern="$package:"
-        if grep -q "^${pattern}" "$HBI"; then
+        if grep -q "^${pattern}" "$INED"; then
             echo -e "${COLOR_YELLOW}[*] Package '$package' is already installed.${COLOR_DEFAULT}"
         else
             if grep -qw "$package" "$PACKAGES_NAME"; then
@@ -174,7 +225,7 @@ install_package() {
             
             if [ $? -eq 0 ]; then
                 get_ver
-                echo "$package:$version" >> "$HBI"
+                echo "$package:$version" >> "$INED"
                 echo -e "${COLOR_GREEN}[+] Package '$package' has been installed.${COLOR_DEFAULT}"
             else
                 echo -e "${COLOR_RED}[-] Failed to download package '$package'. Check your software source.${COLOR_DEFAULT}"
@@ -185,9 +236,10 @@ install_package() {
     fi
 }
 
+#REMOVE部分函数
 remove_package() {
     pattern="$package:"
-    if grep -q "^${pattern}" "$HBI"; then
+    if grep -q "^${pattern}" "$INED"; then
         if [ ! -e "$CACHE/$package.fox" ]; then
             if [ "$GITEE_PRIORITY" = "True" ];then
                 if ! wget -O "$CACHE/$package.fox" "$source_url/main/Gitee/$package.fox"; then
@@ -224,7 +276,7 @@ remove_package() {
             echo -e "${COLOR_BLUE}[*] $run${COLOR_DEFAULT}"
         fi
         eval "$run"
-        sed -i "/^${pattern}$/d" "$HBI"
+        sed -i "/^${pattern}$/d" "$INED"
         rm "$CACHE/$package.fox"
         echo -e "${COLOR_GREEN}[+] Package '$package' has been removed.${COLOR_DEFAULT}"
     else
@@ -232,15 +284,17 @@ remove_package() {
     fi
 }
 
+#LIST部分函数
 list_packages() {
-    if [[ -s "$HBI" ]]; then
+    if [[ -s "$INED" ]]; then
         echo -e "${COLOR_YELLOW}[*] Installed packages:${COLOR_DEFAULT}"
-        cat "$HBI"
+        cat "$INED"
     else
         echo -e "${COLOR_YELLOW}[*] No packages are currently installed.${COLOR_DEFAULT}"
     fi
 }
 
+#
 generate_package_info() {
     awk -F ':' '/^P:/{print $2}' "$FOXINDEX/FOXINDEX" > "$PACKAGES_NAME"
     rm "$PACKAGES_INFO"
@@ -251,6 +305,7 @@ generate_package_info() {
     done < "$PACKAGES_NAME"
 }
 
+
 search_package() {
     if [ -s "$PACKAGES_INFO" ]; then
         cat "$PACKAGES_INFO" | grep --color=auto "$package"
@@ -260,10 +315,10 @@ search_package() {
 }
 
 upgrade_a_package() {
-    if [[ -s "$HBI" ]]; then
+    if [[ -s "$INED" ]]; then
         pattern="$package:"
-        if grep -q "^${pattern}" "$HBI"; then
-            now_version=$(grep "^$package" "$HBI" | awk -F: '{print $2}')
+        if grep -q "^${pattern}" "$INED"; then
+            now_version=$(grep "^$package" "$INED" | awk -F: '{print $2}')
             
             package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
             latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
@@ -324,10 +379,10 @@ upgrade_a_package() {
 }
 
 upgrade_all_packages() {
-    if [[ -s "$HBI" ]]; then
-        cat "$HBI" | while IFS=':' read -r package _
+    if [[ -s "$INED" ]]; then
+        cat "$INED" | while IFS=':' read -r package _
         do
-            now_version=$(grep "^$package" "$HBI" | awk -F: '{print $2}')
+            now_version=$(grep "^$package" "$INED" | awk -F: '{print $2}')
             package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
             latest_version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
             if (( $(echo "$latest_version > $now_version" | bc -l) )); then
@@ -384,7 +439,7 @@ upgrade_all_packages() {
 }
 
 update_now_version() {
-    sed -i "s/^$package:$now_version$/$package:$latest_version/" "$HBI"
+    sed -i "s/^$package:$now_version$/$package:$latest_version/" "$INED"
 }
 
 update() {
@@ -402,17 +457,19 @@ update() {
 info() {
     if [ -s "$FOXINDEX/FOXINDEX" ]; then
         if grep -q "^P:$package$" "$FOXINDEX/FOXINDEX"; then
-            grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX" | awk 'BEGIN{pkg="";ver="";arch="";info="";github=""} 
-                /^P:/{pkg=$0} 
-                /^V:/{ver=$0} 
-                /^L:/{lang=$0} 
-                /^T:/{info=$0} 
-                /^G:/{github=$0} 
+            grep -A 5 "^P:$package$" "$FOXINDEX/FOXINDEX" | awk 'BEGIN{pkg="";ver="";lang="";status="";info="";github=""} 
+                /^P:/{pkg=$0}
+                /^V:/{ver=$0}
+                /^L:/{lang=$0}
+                /^S:/{status=$0}
+                /^T:/{info=$0}
+                /^G:/{github=$0}
                 END{
                     printf "Package: \033[32m%s\033[0m\n", substr(pkg, 3); 
-                    printf "Version: \033[32m%s\033[0m\n", substr(ver, 3); 
-                    printf "Language: \033[32m%s\033[0m\n", substr(lang, 3); 
-                    printf "Introduction: \033[32m%s\033[0m\n", substr(info, 3);
+                    printf "Version: \033[32m%s\033[0m\n", (ver=="" ? "Not available" : substr(ver, 3));
+                    printf "Language: \033[32m%s\033[0m\n", (lang=="" ? "Not available" : substr(lang, 3));
+                    printf "Maintenance Status: \033[32m%s\033[0m\n", (status=="" ? "Not available" : substr(status, 3));
+                    printf "Introduction: \033[32m%s\033[0m\n", (info=="" ? "Not available" : substr(info, 3));
                     printf "GitHub: \033[32m%s\033[0m\n", (github=="" ? "Not available" : substr(github, 3))
             }'
         else
@@ -425,26 +482,28 @@ info() {
 
 get_ver() {
     if [ -s "$FOXINDEX/FOXINDEX" ]; then
-        package_info=$(grep -A 4 "^P:$package$" "$FOXINDEX/FOXINDEX")
+        package_info=$(grep -A 5 "^P:$package$" "$FOXINDEX/FOXINDEX")
         version=$(echo "$package_info" | grep "^V:" | awk -F: '{print $2}' | tr -d '[:space:]')
     else
         echo -e "${COLOR_RED}[-] FOXINDEX file loss. Try \"fox update\"${COLOR_DEFAULT}"
     fi
 }
 
+#ABOUT部分函数
 about() {
-    logo
+    echo ""
     echo -e "${COLOR_BLUE}[Gitee Project Main Address]${COLOR_DEFAULT}"
-    echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > https://gitee.com/TangYuanMaster/JiuWei${COLOR_DEFAULT}"
     echo ""
     echo -e "${COLOR_BLUE}[Gitee Project Repository Address]${COLOR_DEFAULT}"
-    echo -e "${COLOR_CYAN} > https://gitee.com/CNTangyuan/JiuWei-repository${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > https://gitee.com/TangYuanMaster/JiuWei-repository${COLOR_DEFAULT}"
     echo ""
     echo -e "${COLOR_BLUE}[Maintor&Developer]${COLOR_DEFAULT}"
-    echo -e "${COLOR_CYAN} > TangYuan${COLOR_DEFAULT}"
+    echo -e "${COLOR_CYAN} > TangYuanMaster${COLOR_DEFAULT}"
 }
 
 main() {
+    logo
     case "$command" in
         install)
             if [[ -z $package ]]; then
@@ -518,36 +577,43 @@ sys_info=$(uname -a)
 if [ -f "/etc/os-release" ]; then
     if grep -qi 'ID=*alpine*' /etc/os-release; then
         sys_name="alpine"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="apk add"
         PACKAGE_UPGRADE="apk upgrade"
         PACKAGE_REMOVE="apk del"
     elif grep -qi 'ID=*debian*' /etc/os-release; then
         sys_name="debian"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="apt install -y"
         PACKAGE_UPGRADE="apt install --only-upgrade"
         PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*ubuntu*' /etc/os-release; then
         sys_name="ubuntu"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="apt install -y"
         PACKAGE_UPGRADE="apt install --only-upgrade"
         PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*kali*' /etc/os-release; then
         sys_name="kali"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="apt install -y"
         PACKAGE_UPGRADE="apt install --only-upgrade"
         PACKAGE_REMOVE="apt remove"
     elif grep -qi 'ID=*arch*' /etc/os-release; then
         sys_name="arch"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="pacman -S"
         PACKAGE_UPGRADE="pacman -Su"
         PACKAGE_REMOVE="pacman -Rns"
     elif grep -qi 'ID=*centos*' /etc/os-release; then
         sys_name="centos"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="yum install -y"
         PACKAGE_UPGRADE="yum update"
         PACKAGE_REMOVE="yum remove"
     elif grep -qi 'ID=*rhel*' /etc/os-release; then
         sys_name="redhat"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="yum install -y"
         PACKAGE_UPGRADE="yum update"
         PACKAGE_REMOVE="yum remove"
@@ -555,11 +621,13 @@ if [ -f "/etc/os-release" ]; then
 else
     if [ -n "$TERMUX_VERSION" ]; then
         sys_name="termux"
+        SYSTEM_CATEGORY="linux"
         PACKAGE_INSTALL="pkg install -y"
         PACKAGE_UPGRADE="pkg upgrade -y"
         PACKAGE_REMOVE="pkg uninstall -y"
     elif command -v "sw_vers"; then
         sys_name="darwin"
+        SYSTEM_CATEGORY="darwin"
         PACKAGE_INSTALL="brew install -y"
         PACKAGE_UPGRADE="brew upgrade -y"
         PACKAGE_REMOVE="brew uninstall"
@@ -604,6 +672,7 @@ update_run() {
     eval "$run"
 }
 
+#基础命令环境检测
 check_code() {
     echo -e "${COLOR_GREEN}[+] Check the software package dependence...Wait.${COLOR_DEFAULT}"
     if [ -f "$ST" ]; then
