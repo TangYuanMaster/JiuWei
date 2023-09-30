@@ -6,14 +6,13 @@
   <br>
 </h1>
 
-<h3 align="center">🔥A highly customized and domestic network security package management integration project.</h4>
+<h3 align="center">🔥A custom integrated package management project.</h4>
 
 <p align="center">
- ​ <img​ ​src="​https://img.shields.io/badge/NetHunter-✔-red.svg?style=plastic"​>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
-      <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
+      <img src="https://img.shields.io/badge/License-GPL3-_red.svg">
   <a href="https://www.gnu.org/software/bash/">
-      <img src="https://img.shields.io/badge/language-Bash-blue.svg" alt="Bash">
+      <img src="https://img.shields.io/badge/Language-Bash-blue.svg" alt="Bash">
   </a>
 </p>
 

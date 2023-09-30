@@ -9,11 +9,10 @@
 <h3 align="center">🔥一款自定义集成化的类包管理项目.</h4>
 
 <p align="center">
- ​ <img​ ​src="​https://img.shields.io/badge/NetHunter-✔-red.svg?style=plastic"​>
   <a href="https://www.gnu.org/licenses/gpl-3.0.en.html">
-      <img src="https://img.shields.io/badge/license-GPL3-_red.svg">
+      <img src="https://img.shields.io/badge/License-GPL3-_red.svg">
   <a href="https://www.gnu.org/software/bash/">
-      <img src="https://img.shields.io/badge/language-Bash-blue.svg" alt="Bash">
+      <img src="https://img.shields.io/badge/Language-Bash-blue.svg" alt="Bash">
   </a>
 </p>
 

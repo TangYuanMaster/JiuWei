@@ -53,7 +53,7 @@ ST="$MAIN_DIR/$ST_FILE"
 
 #get_latest_releases -z "项目地址" "架构关键词(用于下载对应架构文件)" "解压到的文件夹"
 #get_latest_releases -tg "项目地址" "架构关键词(用于下载对应架构文件)" "解压到的文件夹"
-#get_latest_releases -w "项目地址" "文件关键词(用于下载对应文件)"
+#get_latest_releases -w "项目地址" "文件关键词(用于下载对应文件)" "下载到的文件夹"
 
 command=$1
 github_repo=$2
@@ -71,9 +71,10 @@ case "$command" in
                 wget "$url" -O "$CACHE/$target_file"
             fi
         done
-        cd $CACHE
-        unzip -o -d "$MAIN_DIR/$output_filename" "$target_file"
-        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/$target_file. ${COLOR_DEFAULT}"
+        mkdir "$MAIN_DIR/$output_filename"
+        unzip -o -d "$MAIN_DIR/$output_filename" "$CACHE/$target_file"
+        echo -e "#!/bin/bash\n(cd $MAIN_DIR/$output_filename && ./*$keyword* $@)" > $BIN/$output_filename && chmod +x $BIN/$output_filename
+        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/ . ${COLOR_DEFAULT}"
         ;;
     -tg)
         latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
@@ -85,9 +86,10 @@ case "$command" in
                 wget "$url" -O "$CACHE/$target_file"
             fi
         done
-        cd $CACHE
-        tar -zxvf "$target_file" -C "$MAIN_DIR/$output_filename"
-        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/$target_file. ${COLOR_DEFAULT}"
+        mkdir "$MAIN_DIR/$output_filename"
+        tar -zxvf "$CACHE/$target_file" -C "$MAIN_DIR/$output_filename"
+        echo -e "#!/bin/bash\n(cd $MAIN_DIR/$output_filename && ./*$keyword* $@)" > $BIN/$output_filename && chmod +x $BIN/$output_filename
+        echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/ . ${COLOR_DEFAULT}"
         ;;
     -w)
         latest_release=$(curl -sL "https://api.github.com/repos/$repo/releases/latest")
@@ -96,7 +98,10 @@ case "$command" in
             if [[ $url == *"$keyword"* ]]; then
                 target_file=${url##*/}
                 echo -e "${COLOR_GREEN}[+] Download $target_file. ${COLOR_DEFAULT}"
-                wget "$url" -O "$CACHE/$target_file"
+                mkdir "$MAIN_DIR/$output_filename"
+                wget "$url" -O "$MAIN_DIR/$output_filename/$target_file"
+                echo -e "#!/bin/bash\n(cd $MAIN_DIR/$output_filename && ./*$keyword* $@)" > $BIN/$output_filename && chmod +x $BIN/$output_filename
+                echo -e "${COLOR_GREEN}[+] Save to $MAIN_DIR/$output_filename/ . ${COLOR_DEFAULT}"
             fi
         done
         ;;
